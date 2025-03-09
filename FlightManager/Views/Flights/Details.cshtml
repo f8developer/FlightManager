@@ -1,0 +1,72 @@
+﻿@model FlightManager.Models.Flight
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Flight</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.FromLocation)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FromLocation)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ToLocation)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ToLocation)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.DepartureTime)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DepartureTime)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ArrivalTime)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ArrivalTime)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.AircraftType)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.AircraftType)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.AircraftNumber)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.AircraftNumber)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.PilotName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.PilotName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.PassengerCapacity)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.PassengerCapacity)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BusinessClassCapacity)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BusinessClassCapacity)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
