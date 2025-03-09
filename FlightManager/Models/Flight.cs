@@ -37,7 +37,7 @@ public class Flight
 
     public List<Reservation>? Reservations { get; set; }
 
-    internal static ValidationResult ValidateFlightTimes(DateTime arrivalTime, ValidationContext context)
+    public static ValidationResult ValidateFlightTimes(DateTime arrivalTime, ValidationContext context)
     {
         var instance = (Flight)context.ObjectInstance;
         if (arrivalTime < instance.DepartureTime)
