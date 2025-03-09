@@ -35,7 +35,9 @@ public class Flight
     [Required, Range(0, int.MaxValue)]
     public int BusinessClassCapacity { get; set; }
 
-    public static ValidationResult ValidateFlightTimes(DateTime arrivalTime, ValidationContext context)
+    public List<Reservation>? Reservations { get; set; }
+
+    internal static ValidationResult ValidateFlightTimes(DateTime arrivalTime, ValidationContext context)
     {
         var instance = (Flight)context.ObjectInstance;
         if (arrivalTime < instance.DepartureTime)

@@ -5,10 +5,6 @@ namespace FlightManager.Models;
 
 public class AppUser : IdentityUser
 {
-   
-    [Required, StringLength(50)]
-    public required string Username { get; set; }
-
     [Required, StringLength(50)]
     public required string FirstName { get; set; }
 
@@ -23,4 +19,6 @@ public class AppUser : IdentityUser
 
     [Required]
     public required string Address { get; set; }
+
+    public List<Reservation>? Reservations { get; set; }
 }
