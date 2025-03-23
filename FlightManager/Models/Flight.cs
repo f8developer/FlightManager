@@ -29,13 +29,13 @@ public class Flight
     [Required]
     public required string PilotName { get; set; }
 
-    [Required, Range(1, int.MaxValue)]
+    [Required, CustomValidation(typeof(Flight), nameof(ValidateBusinessClass))]
     public int PassengerCapacity { get; set; }
 
     [Required, Range(0, int.MaxValue)]
     public int BusinessClassCapacity { get; set; }
 
-    public List<Reservation>? Reservations { get; set; }
+    public ICollection<Reservation>? Reservations { get; set; }
 
     public static ValidationResult ValidateFlightTimes(DateTime arrivalTime, ValidationContext context)
     {
@@ -44,6 +44,16 @@ public class Flight
         {
             return new ValidationResult("Arrival time must be after departure time.");
         }
-        return ValidationResult.Success;
+        return ValidationResult.Success ?? new ValidationResult(null);
+    }
+
+    public static ValidationResult ValidateBusinessClass(int businessClass, ValidationContext context)
+    {
+        var instance = (Flight)context.ObjectInstance;
+        if (businessClass > instance.PassengerCapacity)
+        {
+            return new ValidationResult("Business class capacity cannot exceed total passenger capacity.");
+        }
+        return ValidationResult.Success ?? new ValidationResult(null);
     }
 }

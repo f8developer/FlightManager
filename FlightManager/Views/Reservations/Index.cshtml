@@ -13,7 +13,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.User)
+                @Html.DisplayNameFor(model => model.ReservationUser)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Flight)
@@ -31,7 +31,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
+                @Html.DisplayFor(modelItem => item.ReservationUserId)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Flight.AircraftNumber)

@@ -9,94 +9,99 @@ namespace FlightManager.Controllers
     public class ReservationsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public ReservationsController(ApplicationDbContext context)
+        public ReservationsController(ApplicationDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         // GET: Reservations
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Reservations.Include(r => r.Flight).Include(r => r.User);
-            return View(await applicationDbContext.ToListAsync());
+            var reservations = _context.Reservations
+                .Include(r => r.Flight)
+                .Include(r => r.ReservationUser);
+            return View(await reservations.ToListAsync());
         }
 
         // GET: Reservations/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var reservation = await _context.Reservations
                 .Include(r => r.Flight)
-                .Include(r => r.User)
+                .Include(r => r.ReservationUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (reservation == null)
-            {
-                return NotFound();
-            }
 
-            return View(reservation);
+            return reservation == null ? NotFound() : View(reservation);
         }
 
         // GET: Reservations/Create
         public IActionResult Create()
         {
             ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "AircraftNumber");
-            ViewData["UserId"] = new SelectList(_context.AppUsers, "Id", "Id");
+            ViewData["ReservationUserId"] = new SelectList(_context.ReservationUsers, "Id", "UserName");
             return View();
         }
 
         // POST: Reservations/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserId,FlightId,Nationality,TicketType")] Reservation reservation)
+        public async Task<IActionResult> Create([Bind("Id,FlightId,ReservationUserId,Nationality,TicketType")] Reservation reservation)
         {
+            ModelState.Remove("Flight");
+            ModelState.Remove("ReservationUser");
+
             if (ModelState.IsValid)
             {
                 _context.Add(reservation);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            else
+            {
+                if (_env.IsDevelopment())
+                {
+                    var errors = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .Select(x => new
+                        {
+                            Field = x.Key,
+                            Errors = x.Value.Errors.Select(e => e.ErrorMessage)
+                        })
+                        .ToList();
+
+                    ViewData["ModelErrors"] = errors;
+                }
+            }
+
             ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "AircraftNumber", reservation.FlightId);
-            ViewData["UserId"] = new SelectList(_context.AppUsers, "Id", "Id", reservation.UserId);
+            ViewData["ReservationUserId"] = new SelectList(_context.ReservationUsers, "Id", "UserName", reservation.ReservationUserId);
             return View(reservation);
         }
 
         // GET: Reservations/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var reservation = await _context.Reservations.FindAsync(id);
-            if (reservation == null)
-            {
-                return NotFound();
-            }
+            if (reservation == null) return NotFound();
+
             ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "AircraftNumber", reservation.FlightId);
-            ViewData["UserId"] = new SelectList(_context.AppUsers, "Id", "Id", reservation.UserId);
+            ViewData["ReservationUserId"] = new SelectList(_context.ReservationUsers, "Id", "UserName", reservation.ReservationUserId);
             return View(reservation);
         }
 
         // POST: Reservations/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,FlightId,Nationality,TicketType")] Reservation reservation)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,FlightId,ReservationUserId,Nationality,TicketType")] Reservation reservation)
         {
-            if (id != reservation.Id)
-            {
-                return NotFound();
-            }
+            if (id != reservation.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -107,40 +112,27 @@ namespace FlightManager.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ReservationExists(reservation.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!ReservationExists(reservation.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
             ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "AircraftNumber", reservation.FlightId);
-            ViewData["UserId"] = new SelectList(_context.AppUsers, "Id", "Id", reservation.UserId);
+            ViewData["ReservationUserId"] = new SelectList(_context.ReservationUsers, "Id", "UserName", reservation.ReservationUserId);
             return View(reservation);
         }
 
         // GET: Reservations/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var reservation = await _context.Reservations
                 .Include(r => r.Flight)
-                .Include(r => r.User)
+                .Include(r => r.ReservationUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (reservation == null)
-            {
-                return NotFound();
-            }
 
-            return View(reservation);
+            return reservation == null ? NotFound() : View(reservation);
         }
 
         // POST: Reservations/Delete/5
@@ -148,13 +140,25 @@ namespace FlightManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var reservation = await _context.Reservations.FindAsync(id);
+            var reservation = await _context.Reservations
+                .Include(r => r.ReservationUser)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
             if (reservation != null)
             {
+                // Remove reservation first
                 _context.Reservations.Remove(reservation);
-            }
 
-            await _context.SaveChangesAsync();
+                // Check if ReservationUser is orphaned
+                if (reservation.ReservationUser != null &&
+                    !await _context.Reservations.AnyAsync(r => r.ReservationUserId == reservation.ReservationUserId) &&
+                    reservation.ReservationUser.AppUserId == null)
+                {
+                    _context.ReservationUsers.Remove(reservation.ReservationUser);
+                }
+
+                await _context.SaveChangesAsync();
+            }
             return RedirectToAction(nameof(Index));
         }
 
