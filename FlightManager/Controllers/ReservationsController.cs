@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FlightManager.Data;
+using FlightManager.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using FlightManager.Data;
-using FlightManager.Models;
 
 namespace FlightManager.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ReservationsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -18,6 +20,7 @@ namespace FlightManager.Controllers
         }
 
         // GET: Reservations
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var reservations = _context.Reservations

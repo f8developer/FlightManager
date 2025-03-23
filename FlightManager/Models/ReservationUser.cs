@@ -10,7 +10,7 @@ public class ReservationUser
     [Required, StringLength(50)]
     public required string UserName { get; set; }
 
-    [Required ,StringLength(50)]
+    [Required, StringLength(50)]
     public required string FirstName { get; set; }
 
     [Required, StringLength(50)]
