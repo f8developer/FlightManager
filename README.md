@@ -59,7 +59,7 @@ dotnet test
 
 ## 📄 Documentation
 
-Full API documentation available in the [docs](/docs) folder.
+Full API documentation available in the [docs](/docs/MAIN.md) folder.
 
 ## 🤝 Contributing
 
