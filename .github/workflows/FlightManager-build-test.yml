@@ -30,19 +30,11 @@ jobs:
       run: dotnet build FlightManager.sln --configuration Release --no-restore
 
     - name: Run unit tests
-      run: dotnet test --configuration Release --no-build --verbosity normal
+      run: |
+        dotnet test --configuration Release --no-build --logger "trx;LogFileName=TestResults.trx" --results-directory TestResults
       env:
         ASPNETCORE_ENVIRONMENT: Test
 
-    - name: Publish test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results
-        path: |
-          **/TestResults/*.trx
-          **/TestResults/coverage*
-
     - name: Generate coverage report
       run: |
-        dotnet test --configuration Release --collect:"XPlat Code Coverage" --settings coverlet.runsettings
+        dotnet test --configuration Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
