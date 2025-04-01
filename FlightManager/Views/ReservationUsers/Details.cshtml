@@ -1,66 +1,57 @@
-﻿@model FlightManager.Models.ReservationUser
+﻿@model FlightManager.Data.Models.ReservationUser
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "User Details";
 }
 
-<h1>Details</h1>
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fas fa-user"></i> User Details</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="fw-bold">Personal Information</h5>
+                    <p><strong>Personal ID:</strong> @Model.Id</p>
+                    <p class="text-danger fw-bold" style="font-size: 1rem;">⚠ Remember or write the Personal ID down! This is the only way to view your reservations in the future.</p>
+                    <p><strong>Username:</strong> @Model.UserName</p>
+                    <p><strong>First Name:</strong> @Model.FirstName</p>
+                    <p><strong>Middle Name:</strong> @(Model.MiddleName ?? "N/A")</p>
+                    <p><strong>Last Name:</strong> @Model.LastName</p>
+                    <p><strong>EGN:</strong> @Model.EGN</p>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="fw-bold">Contact Details</h5>
+                    <p><strong>Address:</strong> @(Model.Address ?? "N/A")</p>
+                    <p><strong>Phone Number:</strong> @(Model.PhoneNumber ?? "N/A")</p>
+                    <p><strong>App User ID:</strong> @(Model.AppUser != null ? Model.AppUser.Id : "N/A")</p>
+                </div>
+            </div>
+        </div>
+        @if (User.Identity.IsAuthenticated){
+            <div class="card-footer d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</a>
+            </div>
+        }
+    </div>
+</div>
 
-<div>
-    <h4>ReservationUser</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UserName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UserName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FirstName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FirstName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MiddleName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MiddleName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LastName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LastName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EGN)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EGN)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Address)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Address)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PhoneNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PhoneNumber)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AppUser)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AppUser.Id)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+        .card {
+            border-radius: 10px;
+        }
+
+        .card-header {
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .card-body p {
+            margin-bottom: 8px;
+        }
+    </style>
+}

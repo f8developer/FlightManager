@@ -1,42 +1,116 @@
-﻿@model FlightManager.Models.Reservation
+﻿@model FlightManager.Data.Models.Reservation
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Reservation Details";
 }
 
-<h1>Details</h1>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-ticket-alt"></i> Reservation Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-muted">Passenger Information</h5>
+                            <p>
+                                <strong>Passenger:</strong> @if (Model.ReservationUser != null)
+                                {
+                                    <a asp-controller="ReservationUsers" asp-action="Details" asp-route-id="@Model.ReservationUser.Id">
+                                        @Model.ReservationUser.UserName
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span>Unknown Passenger</span>
+                                }
+                            </p>
+                            <p><strong>Nationality:</strong> @Model.Nationality</p>
+                            <p><strong>Ticket Type:</strong> @Model.TicketType</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-muted">Flight Information</h5>
+                            <p><strong>Flight Number:</strong> @(Model.Flight != null ? $"Flight #{Model.Flight.AircraftNumber}" : "N/A")</p>
+                            <p><strong>From:</strong> @(Model.Flight != null ? Model.Flight.FromLocation : "N/A")</p>
+                            <p><strong>To:</strong> @(Model.Flight != null ? Model.Flight.ToLocation : "N/A")</p>
+                            <p><strong>Route:</strong> @(Model.Flight != null ? $"{Model.Flight.FromLocation} → {Model.Flight.ToLocation}" : "N/A")</p>
+                            <p>
+                                <strong>Schedule:</strong>
+                                @(Model.Flight != null ? Model.Flight.DepartureTime.ToString("g") : "N/A") -
+                                @(Model.Flight != null ? Model.Flight.ArrivalTime.ToString("g") : "N/A")
+                            </p>
+                            <p>
+                                <strong>Flight Duration:</strong>
+                                @if (Model.Flight != null)
+                                {
+                                    var duration = Model.Flight.ArrivalTime - Model.Flight.DepartureTime;
+                                    <span>@duration.ToString(@"hh\:mm")</span>
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                            </p>
+                            <p>
+                                <strong>Aircraft:</strong> @(Model.Flight != null ? Model.Flight.AircraftType : "N/A")
+                            </p>
+                            <p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                    }
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
 
-<div>
-    <h4>Reservation</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ReservationUser)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ReservationUserId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Flight)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Flight.AircraftNumber)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nationality)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nationality)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TicketType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TicketType)
-        </dd>
-    </dl>
+        <!-- New Card for Reservation ID Explanation -->
+        <div class="col-md-4">
+            <div class="card shadow-lg bg-warning text-dark">
+                <div class="card-header">
+                    <h5 class="mb-0">Important Reservation Information</h5>
+                </div>
+                <div class="card-body text-center">
+                    <h1 class="display-3 font-weight-bold">
+                        @Model.ReservationUser?.Id
+                    </h1>
+                    <p>
+                        This is your unique reservation ID. Keep this number safe, as it is the only way to check on the reservations you have made in the future.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+@section Styles {
+    <style>
+        .card-body p {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-header h3 {
+            font-size: 1.5rem;
+        }
+
+        .card-body .display-3 {
+            font-size: 3.5rem;
+            color: #d9534f;
+        }
+
+        .card-body p {
+            font-size: 1.2rem;
+        }
+    </style>
+}

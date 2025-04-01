@@ -1,73 +1,163 @@
-﻿@model FlightManager.Models.Flight
+﻿@model FlightManager.Data.Models.Flight
 
 @{
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Create New Flight</h2>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" id="flightForm">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-<h4>Flight</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="FromLocation" class="control-label"></label>
-                <input asp-for="FromLocation" class="form-control" />
-                <span asp-validation-for="FromLocation" class="text-danger"></span>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Location Fields -->
+                                <div class="form-group mb-3">
+                                    <label asp-for="FromLocation" class="form-label"></label>
+                                    <input asp-for="FromLocation" class="form-control" />
+                                    <span asp-validation-for="FromLocation" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="ToLocation" class="form-label"></label>
+                                    <input asp-for="ToLocation" class="form-control" />
+                                    <span asp-validation-for="ToLocation" class="text-danger"></span>
+                                </div>
+
+                                <!-- DateTime Fields -->
+                                <div class="form-group mb-3">
+                                    <label asp-for="DepartureTime" class="form-label"></label>
+                                    <input asp-for="DepartureTime" type="datetime-local"
+                                           class="form-control"
+                                           value="@(Model?.DepartureTime != null ? Model.DepartureTime.ToString("yyyy-MM-ddTHH:mm") : "")" />
+                                    <span asp-validation-for="DepartureTime" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="ArrivalTime" class="form-label"></label>
+                                    <input asp-for="ArrivalTime" type="datetime-local"
+                                           class="form-control"
+                                           value="@(Model?.ArrivalTime.ToString("yyyy-MM-ddTHH:mm"))" />
+                                    <span asp-validation-for="ArrivalTime" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <!-- Aircraft Fields -->
+                                <div class="form-group mb-3">
+                                    <label asp-for="AircraftType" class="form-label"></label>
+                                    <input asp-for="AircraftType" class="form-control" />
+                                    <span asp-validation-for="AircraftType" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="AircraftNumber" class="form-label"></label>
+                                    <input asp-for="AircraftNumber" class="form-control" />
+                                    <span asp-validation-for="AircraftNumber" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="PilotName" class="form-label"></label>
+                                    <input asp-for="PilotName" class="form-control" />
+                                    <span asp-validation-for="PilotName" class="text-danger"></span>
+                                </div>
+
+                                <!-- Capacity Fields -->
+                                <div class="form-group mb-3">
+                                    <label asp-for="PassengerCapacity" class="form-label"></label>
+                                    <input asp-for="PassengerCapacity" type="number" min="1" class="form-control" />
+                                    <span asp-validation-for="PassengerCapacity" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="BusinessClassCapacity" class="form-label"></label>
+                                    <input asp-for="BusinessClassCapacity" type="number" min="0" class="form-control" />
+                                    <span asp-validation-for="BusinessClassCapacity" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-save"></i> Create Flight
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to List
+                            </a>
+                        </div>
+                    </form>
+                    @if (ViewData["ModelErrors"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            <h4>Validation Errors (Development Only)</h4>
+                            <ul>
+                                @foreach (var error in (dynamic)ViewData["ModelErrors"])
+                                {
+                                    <li>
+                                        <strong>@error.Field</strong>:
+                                        @string.Join(", ", error.Errors)
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ToLocation" class="control-label"></label>
-                <input asp-for="ToLocation" class="form-control" />
-                <span asp-validation-for="ToLocation" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DepartureTime" class="control-label"></label>
-                <input asp-for="DepartureTime" class="form-control" />
-                <span asp-validation-for="DepartureTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ArrivalTime" class="control-label"></label>
-                <input asp-for="ArrivalTime" class="form-control" />
-                <span asp-validation-for="ArrivalTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AircraftType" class="control-label"></label>
-                <input asp-for="AircraftType" class="form-control" />
-                <span asp-validation-for="AircraftType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AircraftNumber" class="control-label"></label>
-                <input asp-for="AircraftNumber" class="form-control" />
-                <span asp-validation-for="AircraftNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PilotName" class="control-label"></label>
-                <input asp-for="PilotName" class="form-control" />
-                <span asp-validation-for="PilotName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PassengerCapacity" class="control-label"></label>
-                <input asp-for="PassengerCapacity" class="form-control" />
-                <span asp-validation-for="PassengerCapacity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="BusinessClassCapacity" class="control-label"></label>
-                <input asp-for="BusinessClassCapacity" class="form-control" />
-                <span asp-validation-for="BusinessClassCapacity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+@section StyleLinks {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+}
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            // Format datetime inputs correctly
+            $('input[type="datetime-local"]').each(function() {
+                if (!$(this).val()) {
+                    var now = new Date();
+                    var formatted = now.toISOString().slice(0, 16);
+                    $(this).val(formatted);
+                }
+            });
+
+            // Custom validation for arrival time
+            $.validator.addMethod("laterThanDeparture", function(value, element) {
+                var departure = new Date($('#DepartureTime').val());
+                var arrival = new Date(value);
+                return arrival > departure;
+            }, "Arrival must be after departure");
+
+            // Apply validation rules
+            $('#flightForm').validate({
+                rules: {
+                    ArrivalTime: {
+                        laterThanDeparture: true
+                    },
+                    BusinessClassCapacity: {
+                        max: function() {
+                            return parseInt($('#PassengerCapacity').val()) || 0;
+                        }
+                    }
+                },
+                messages: {
+                    BusinessClassCapacity: {
+                        max: "Cannot exceed passenger capacity"
+                    }
+                }
+            });
+        });
+    </script>
 }

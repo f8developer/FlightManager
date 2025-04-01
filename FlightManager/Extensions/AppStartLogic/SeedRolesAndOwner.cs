@@ -1,13 +1,24 @@
 ﻿using FlightManager.Data;
-using FlightManager.Models;
+using FlightManager.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlightManager.Extensions.AppStartLogic;
 
+/// <summary>
+/// Contains logic for seeding initial roles and the owner user during application startup.
+/// </summary>
 internal class SeedRolesAndOwner
 {
-    internal static async Task SeedRolesAndOwnerAsync(IServiceScope scope)
+    /// <summary>
+    /// Seeds the database with required roles and creates the owner user if they don't exist.
+    /// </summary>
+    /// <param name="scope">The IServiceScope containing required services.</param>
+    /// <param name="ownerSettings">Configuration settings for the owner user.</param>
+    /// <returns>A Task representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when owner password is not configured.</exception>
+    /// <exception cref="Exception">Thrown when owner user creation fails.</exception>
+    internal static async Task SeedRolesAndOwnerAsync(IServiceScope scope, OwnerSettings ownerSettings)
     {
         var services = scope.ServiceProvider;
         try
@@ -30,18 +41,21 @@ internal class SeedRolesAndOwner
                 }
             }
 
+            var ownerEmail = ownerSettings.OwnerEmail;
+
             // Setup owner user
             var ownerUser = new AppUser
             {
-                UserName = "owner@example.com",
-                Email = "owner@example.com"
+                UserName = ownerEmail,
+                Email = ownerEmail
             };
 
             // Create admin user if no users exist
             if (await userManager.FindByEmailAsync(ownerUser.Email.ToString()) == null)
             {
-                var ownerPassword = configuration["OwnerPassword"] ??
-                                  Environment.GetEnvironmentVariable("OwnerPassword");
+                var ownerPassword = ownerSettings.OwnerPassword ??
+                                    configuration["OwnerPassword"] ??
+                                    Environment.GetEnvironmentVariable("OwnerPassword");
                 if (string.IsNullOrEmpty(ownerPassword))
                 {
                     throw new InvalidOperationException("Owner password not configured in secrets.");
@@ -70,6 +84,5 @@ internal class SeedRolesAndOwner
         {
             Console.WriteLine($"An error occurred while seeding the database. -> {ex}");
         }
-
     }
 }

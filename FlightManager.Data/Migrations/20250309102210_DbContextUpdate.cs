@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿#nullable disable
 
-#nullable disable
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace FlightManager.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateReservation : Migration
+    public partial class DbContextUpdate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

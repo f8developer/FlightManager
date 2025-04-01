@@ -1,16 +1,23 @@
-using FlightManager.Controllers;
 using FlightManager.Data;
+using FlightManager.Data.Models;
 using FlightManager.Extensions;
-using FlightManager.Models;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 namespace FlightManager;
 
+/// <summary>
+/// The main entry point for the FlightManager application.
+/// </summary>
 public class Program
 {
+    /// <summary>
+    /// The entry point of the application.
+    /// </summary>
+    /// <param name="args">Command-line arguments passed to the application.</param>
+    /// <returns>A Task representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the default connection string is not found.</exception>
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +27,12 @@ public class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+        // Bind the configuration section to a strongly-typed object
+        builder.Services.Configure<OwnerSettings>(builder.Configuration.GetSection("OwnerSettings"));
+
+        // Add singleton so Razor views can access it
+        builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<OwnerSettings>>().Value);
 
         builder.Services.AddDefaultIdentity<AppUser>(options =>
         {
@@ -48,7 +61,9 @@ public class Program
 
         var app = builder.Build();
 
-        await AppStart.InitializeAsync(app);
+        OwnerSettings ownerSettings = builder.Configuration.GetSection("OwnerSettings").Get<OwnerSettings>();
+
+        await AppStart.InitializeAsync(app, ownerSettings);
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -63,8 +78,10 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+        app.UseStaticFiles();
         app.UseRouting();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapStaticAssets();
@@ -77,4 +94,20 @@ public class Program
 
         app.Run();
     }
+}
+
+/// <summary>
+/// Represents configuration settings for the owner user.
+/// </summary>
+public class OwnerSettings
+{
+    /// <summary>
+    /// Gets or sets the email address for the owner user.
+    /// </summary>
+    public string OwnerEmail { get; set; }
+
+    /// <summary>
+    /// Gets or sets the password for the owner user.
+    /// </summary>
+    public string OwnerPassword { get; set; }
 }

@@ -1,0 +1,84 @@
+﻿@model FlightManager.Data.Models.AppUser
+@using FlightManager.Data.Models
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@inject UserManager<AppUser> UserManager
+
+@{
+    ViewData["Title"] = "Edit User";
+    bool isOwnerAccount = Model.Email == "owner@example.com";
+    string disabledAttribute = isOwnerAccount ? "disabled" : "";
+}
+
+<h1>Edit</h1>
+
+@if (isOwnerAccount)
+{
+    <div class="alert alert-warning">
+        <h4>Owner Account Protection</h4>
+        <p>The owner account (owner@example.com) cannot be modified as it is required for system administration.</p>
+    </div>
+}
+
+<h4>User</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label"></label>
+                <input asp-for="UserName" class="form-control" disabled="@isOwnerAccount" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" disabled="@isOwnerAccount" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <input asp-for="PhoneNumber" class="form-control" disabled="@isOwnerAccount" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            @if (!isOwnerAccount)
+            {
+                <div class="form-group">
+                    <label class="control-label">Roles</label>
+                    <div>
+                        @foreach (var role in ViewBag.AllRoles as List<string>)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       name="SelectedRoles"
+                                       value="@role"
+                                       checked="@(ViewBag.UserRoles.Contains(role))" />
+                                <label class="form-check-label">@role</label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="form-group mt-3">
+                @if (!isOwnerAccount)
+                {
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                }
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

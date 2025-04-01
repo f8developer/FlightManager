@@ -1,61 +1,162 @@
-﻿@model FlightManager.Models.Reservation
+﻿@using FlightManager.Data.Models
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model FlightManager.Data.Models.Reservation
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Reservation";
 }
 
-<h1>Create</h1>
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Create Reservation</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-<h4>Reservation</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="ReservationUserId" class="control-label"></label>
-                <select asp-for="ReservationUserId" class="form-control" asp-items="ViewBag.ReservationUserId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="FlightId" class="control-label"></label>
-                <select asp-for="FlightId" class ="form-control" asp-items="ViewBag.FlightId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Nationality" class="control-label"></label>
-                <input asp-for="Nationality" class="form-control" />
-                <span asp-validation-for="Nationality" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TicketType" class="control-label"></label>
-                <input asp-for="TicketType" class="form-control" />
-                <span asp-validation-for="TicketType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-        @if (ViewData["ModelErrors"] != null)
-        {
-            <div class="alert alert-danger">
-                <h4>Validation Errors (Development Only)</h4>
-                <ul>
-                    @foreach (var error in (dynamic)ViewData["ModelErrors"])
-                    {
-                        <li>
-                            <strong>@error.Field</strong>:
-                            @string.Join(", ", error.Errors)
-                        </li>
-                    }
-                </ul>
-            </div>
-        }
+                <h5 class="text-primary">Passenger Information</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="ReservationUser.UserName" class="control-label"></label>
+                            <input asp-for="ReservationUser.UserName" class="form-control" required />
+                            <span asp-validation-for="ReservationUser.UserName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="ReservationUser.FirstName" class="control-label"></label>
+                            <input asp-for="ReservationUser.FirstName" class="form-control" required />
+                            <span asp-validation-for="ReservationUser.FirstName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="ReservationUser.MiddleName" class="control-label"></label>
+                            <input asp-for="ReservationUser.MiddleName" class="form-control" required />
+                            <span asp-validation-for="ReservationUser.MiddleName" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="ReservationUser.LastName" class="control-label"></label>
+                            <input asp-for="ReservationUser.LastName" class="form-control" required />
+                            <span asp-validation-for="ReservationUser.LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="ReservationUser.EGN" class="control-label"></label>
+                            <input asp-for="ReservationUser.EGN" class="form-control" required />
+                            <span asp-validation-for="ReservationUser.EGN" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="ReservationUser.Address" class="control-label"></label>
+                            <input asp-for="ReservationUser.Address" class="form-control" required />
+                            <span asp-validation-for="ReservationUser.Address" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="ReservationUser.PhoneNumber" class="control-label"></label>
+                            <input asp-for="ReservationUser.PhoneNumber" class="form-control" required />
+                            <span asp-validation-for="ReservationUser.PhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <h5 class="text-primary">Reservation Details</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="FlightId" class="control-label"></label>
+                            <select asp-for="FlightId" class="form-control" asp-items="ViewBag.FlightList" required>
+                                <option value="">-- Select a Flight --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Nationality" class="control-label"></label>
+                            <input asp-for="Nationality" class="form-control" required />
+                            <span asp-validation-for="Nationality" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="TicketType" class="control-label"></label>
+                            <select asp-for="TicketType" class="form-control" asp-items="Html.GetEnumSelectList<TicketType>()" required></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-3 text-center">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Create Reservation
+                    </button>
+                </div>
+            </form>
+
+            @if (ViewData["ModelErrors"] != null)
+            {
+                <div class="alert alert-danger mt-3">
+                    <h4>Validation Errors (Development Only)</h4>
+                    <ul>
+                        @foreach (var error in (dynamic)ViewData["ModelErrors"])
+                        {
+                            <li>
+                                <strong>@error.Field</strong>: @string.Join(", ", error.Errors)
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="mt-3 text-center">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            // Real-time EGN validation
+            $('#ReservationUser_EGN').on('blur', function() {
+                var egn = $(this).val();
+                var flightId = $('#FlightId').val();
+
+                if (egn && flightId) {
+                    $.get('/Reservations/CheckReservation', { egn: egn, flightId: flightId }, function(data) {
+                        if (data.exists) {
+                            // Display error message
+                            $('#reservation-error').remove();
+                            $('#ReservationUser_EGN').after(
+                                '<span id="reservation-error" class="text-danger">This user already has a reservation for this flight.</span>'
+                            );
+                        } else {
+                            $('#reservation-error').remove();
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 }

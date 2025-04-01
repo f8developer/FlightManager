@@ -1,0 +1,127 @@
+﻿@model FlightManager.Data.Models.AppUser
+@using FlightManager.Data.Models
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@inject UserManager<AppUser> UserManager
+
+@{
+    ViewData["Title"] = "User Details";
+    var userRoles = await UserManager.GetRolesAsync(Model);
+}
+
+<div class="card user-details-card">
+    <div class="card-header bg-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">User Details</h4>
+            <div>
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-light btn-sm">Edit</a>
+                <a asp-action="Index" class="btn btn-light btn-sm">Back to List</a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="user-info-section">
+                    <h5 class="section-title">Basic Information</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label>Email:</label>
+                                <p>@Model.Email</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <label>Phone Number:</label>
+                                <p>@(Model.PhoneNumber ?? "Not provided")</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="user-info-section mt-4">
+                    <h5 class="section-title">Roles & Permissions</h5>
+                    @if (userRoles.Any())
+                    {
+                        <div class="role-badges">
+                            @foreach (var role in userRoles)
+                            {
+                                <span class="badge bg-success">@role</span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No roles assigned</p>
+                    }
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="user-meta-section">
+                    <h5 class="section-title">Account Status</h5>
+                    <div class="info-item">
+                        <label>Status:</label>
+                        <p>
+                            @if (Model.LockoutEnabled && Model.LockoutEnd > DateTime.Now)
+                            {
+                                <span class="badge bg-danger">Locked</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .user-details-card {
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: none;
+    }
+
+    .section-title {
+        color: #2c3e50;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+        margin-bottom: 20px;
+    }
+
+    .info-item {
+        margin-bottom: 15px;
+    }
+
+        .info-item label {
+            font-weight: 600;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .info-item p {
+            margin: 0;
+            font-size: 16px;
+        }
+
+    .role-badges .badge {
+        margin-right: 5px;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+        padding: 5px 10px;
+    }
+
+    .user-info-section, .user-meta-section {
+        background: #fff;
+        padding: 20px;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+</style>

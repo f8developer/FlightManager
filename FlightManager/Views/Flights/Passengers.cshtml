@@ -1,0 +1,104 @@
+﻿@using FlightManager.Data.Models
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model FlightManager.Data.Models.Flight
+
+@{
+    ViewData["Title"] = $"Passengers - Flight {Model.AircraftNumber}";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            <i class="fas fa-users"></i> Passenger List
+            <small class="text-muted">Flight #@Model.AircraftNumber</small>
+        </h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Flights
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">@Model.FromLocation → @Model.ToLocation</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><span class="badge bg-success"></span> Business Class Passengers</h5>
+                    @if (Model.Reservations?.Any(r => r.TicketType == TicketType.Business) ?? false)
+                    {
+                        <div class="list-group">
+                            @foreach (var reservation in Model.Reservations.Where(r => r.TicketType == TicketType.Business))
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong>@reservation.ReservationUser?.UserName</strong>
+                                            <div class="text-muted small">@reservation.Nationality</div>
+                                        </div>
+                                        <span class="badge bg-success">Business</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">No business class passengers</div>
+                    }
+                </div>
+
+                <div class="col-md-6">
+                    <h5><span class="badge bg-primary"></span> Standard Class Passengers</h5>
+                    @if (Model.Reservations?.Any(r => r.TicketType != TicketType.Business) ?? false)
+                    {
+                        <div class="list-group">
+                            @foreach (var reservation in Model.Reservations.Where(r => r.TicketType != TicketType.Business))
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong>@reservation.ReservationUser?.UserName</strong>
+                                            <div class="text-muted small">@reservation.Nationality</div>
+                                        </div>
+                                        <span class="badge bg-primary">Standard</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">No standard class passengers</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Summary</h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-4">Total Capacity:</dt>
+                <dd class="col-sm-8">@Model.PassengerCapacity</dd>
+
+                <dt class="col-sm-4">Business Class:</dt>
+                <dd class="col-sm-8">
+                    @Model.Reservations?.Count(r => r.TicketType == TicketType.Business) of @Model.BusinessClassCapacity booked
+                </dd>
+
+                <dt class="col-sm-4">Standard Class:</dt>
+                <dd class="col-sm-8">
+                    @Model.Reservations?.Count(r => r.TicketType != TicketType.Business) of @(Model.PassengerCapacity - Model.BusinessClassCapacity) booked
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>
+
+@section StyleLinks {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+}

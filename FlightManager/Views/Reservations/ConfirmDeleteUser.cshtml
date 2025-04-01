@@ -1,0 +1,23 @@
+﻿@model FlightManager.Data.Models.ReservationUser
+
+@{
+    ViewData["Title"] = "Confirm Delete";
+}
+
+<h2>Confirm Delete</h2>
+<p>Are you sure you want to delete this user? This action cannot be undone.</p>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@Model.UserName (@Model.FirstName @Model.LastName)</h5>
+        <p class="card-text"><strong>EGN:</strong> @Model.EGN</p>
+        <p class="card-text"><strong>Address:</strong> @Model.Address</p>
+        <p class="card-text"><strong>Phone:</strong> @Model.PhoneNumber</p>
+    </div>
+</div>
+
+<form asp-action="ConfirmDeleteUserConfirmed" method="post">
+    <input type="hidden" name="userId" value="@Model.Id" />
+    <button type="submit" class="btn btn-danger">Delete User</button>
+    <a asp-action="Index" class="btn btn-secondary">Continue, without deleting the User</a>
+</form>
