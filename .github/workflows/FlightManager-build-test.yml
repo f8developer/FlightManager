@@ -28,3 +28,21 @@ jobs:
     - name: Build solution
       id: build
       run: dotnet build FlightManager.sln --configuration Release --no-restore
+
+    - name: Run unit tests
+      run: dotnet test --configuration Release --no-build --verbosity normal
+      env:
+        ASPNETCORE_ENVIRONMENT: Test
+
+    - name: Publish test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: |
+          **/TestResults/*.trx
+          **/TestResults/coverage*
+
+    - name: Generate coverage report
+      run: |
+        dotnet test --configuration Release --collect:"XPlat Code Coverage" --settings coverlet.runsettings
