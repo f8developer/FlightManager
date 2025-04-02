@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using FlightManager.Data.Models;
 using System.ComponentModel.DataAnnotations;
-using FlightManager.Data.Models;
-using NUnit.Framework;
 
 namespace FlightManager.Test.ModelTests;
 
@@ -41,8 +38,8 @@ public class FlightTests
         validationResults.AddRange(validateResults);
 
         // Assert
-        Assert.That(validationResults.Exists(v => 
-                v.ErrorMessage == "Arrival time must be after departure time."), 
+        Assert.That(validationResults.Exists(v =>
+                v.ErrorMessage == "Arrival time must be after departure time."),
             Is.True);
     }
 
@@ -75,8 +72,8 @@ public class FlightTests
         validationResults.AddRange(validateResults);
 
         // Assert
-        Assert.That(validationResults.Exists(v => 
-                v.ErrorMessage == "Business class capacity cannot exceed total passenger capacity."), 
+        Assert.That(validationResults.Exists(v =>
+                v.ErrorMessage == "Business class capacity cannot exceed total passenger capacity."),
             Is.True);
     }
 

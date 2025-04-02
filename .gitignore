@@ -398,3 +398,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/FlightManager.EmailService/credentials.json
+/FlightManager/credentials.json

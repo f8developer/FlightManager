@@ -1,12 +1,14 @@
 ﻿@model FlightManager.Data.Models.AppUser
 @using FlightManager.Data.Models
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.Extensions.Options
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @inject UserManager<AppUser> UserManager
+@inject IOptions<OwnerSettings> OwnerSettings
 
 @{
     ViewData["Title"] = "Edit User";
-    bool isOwnerAccount = Model.Email == "owner@example.com";
+    bool isOwnerAccount = Model.Email == OwnerSettings.Value.OwnerEmail;
     string disabledAttribute = isOwnerAccount ? "disabled" : "";
 }
 
@@ -16,7 +18,7 @@
 {
     <div class="alert alert-warning">
         <h4>Owner Account Protection</h4>
-        <p>The owner account (owner@example.com) cannot be modified as it is required for system administration.</p>
+        <p>The owner account (@OwnerSettings.Value.OwnerEmail) cannot be modified as it is required for system administration.</p>
     </div>
 }
 

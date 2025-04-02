@@ -1,13 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using System.Linq;
-using System.Threading.Tasks;
-using System;
-using Microsoft.Extensions.DependencyInjection;
-using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
-using FlightManager.Data;
+﻿using FlightManager.Data;
 using FlightManager.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightManager.Test.ContextTests;
 

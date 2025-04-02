@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlightManager.Test", "Fligh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlightManager.Data", "FlightManager.Data\FlightManager.Data.csproj", "{8C4C83FC-0D40-4718-9300-A42D5E03333E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlightManager.EmailService", "FlightManager.EmailService\FlightManager.EmailService.csproj", "{BD28AF0F-65FC-4DF2-BCFB-F8851DAA7C21}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{8C4C83FC-0D40-4718-9300-A42D5E03333E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C4C83FC-0D40-4718-9300-A42D5E03333E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C4C83FC-0D40-4718-9300-A42D5E03333E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD28AF0F-65FC-4DF2-BCFB-F8851DAA7C21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD28AF0F-65FC-4DF2-BCFB-F8851DAA7C21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD28AF0F-65FC-4DF2-BCFB-F8851DAA7C21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD28AF0F-65FC-4DF2-BCFB-F8851DAA7C21}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -102,6 +102,18 @@
         <member name="M:FlightManager.Data.Migrations.Fix.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:FlightManager.Data.Migrations.CheckForChanges">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.CheckForChanges.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.CheckForChanges.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.CheckForChanges.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:FlightManager.Data.Models.AppUser">
             <summary>
             Represents an application user that extends the IdentityUser class.

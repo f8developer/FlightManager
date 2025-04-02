@@ -12,6 +12,26 @@
                     <h2 class="mb-0">Create New Flight</h2>
                 </div>
                 <div class="card-body">
+                    <!-- Display success message if exists -->
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
+
+                    <!-- Display general form errors -->
+                    @if (ViewData.ModelState[""]?.Errors.Count > 0)
+                    {
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach (var error in ViewData.ModelState[""].Errors)
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
                     <form asp-action="Create" id="flightForm">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 

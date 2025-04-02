@@ -1,8 +1,199 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using FlightManager.Controllers
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Flight Management System";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="flight-landing">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="display-4">Welcome to Flight Manager</h1>
+                <p class="lead">Your complete solution for modern airline operations management</p>
+
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">@Model.TotalFlights</div>
+                        <div class="stat-label">Total Flights</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">@Model.TotalCapacity</div>
+                        <div class="stat-label">Total Capacity</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Flights -->
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="text-center mb-4">Upcoming Flights</h2>
+
+                @if (Model.UpcomingFlights?.Any() == true)
+                {
+                    <div class="list-group">
+                        @foreach (var flight in Model.UpcomingFlights)
+                        {
+                            <a asp-controller="Flights" asp-action="Details" asp-route-id="@flight.Id" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">@flight.FromLocation → @flight.ToLocation</h5>
+                                    <small>Flight #@flight.AircraftNumber</small>
+                                </div>
+                                <p class="mb-1">
+                                    <i class="fas fa-plane-departure me-2"></i>@flight.DepartureTime.ToString("f")
+                                    <i class="fas fa-plane-arrival ms-3 me-2"></i>@flight.ArrivalTime.ToString("f")
+                                </p>
+                                <small class="text-muted">@flight.AircraftType - Pilot: @flight.PilotName</small>
+                            </a>
+                        }
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a asp-controller="Flights" asp-action="Index" class="btn btn-primary">
+                            View All Flights <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">No upcoming flights scheduled.</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="bg-light py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Our Features</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card text-center p-4 h-100">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-plane fa-3x text-primary"></i>
+                        </div>
+                        <h3>Flight Management</h3>
+                        <p>Comprehensive tools for managing all aspects of flight operations and scheduling.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card text-center p-4 h-100">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-users fa-3x text-primary"></i>
+                        </div>
+                        <h3>Passenger Tracking</h3>
+                        <p>Efficient management of passenger manifests and booking information.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card text-center p-4 h-100">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-chart-line fa-3x text-primary"></i>
+                        </div>
+                        <h3>Real-time Analytics</h3>
+                        <p>Powerful reporting tools to analyze flight performance and capacity.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Styles {
+    <style>
+        .flight-landing {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 5rem 0;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .hero-section::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: 40%;
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 L0,100 Z" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></svg>');
+                background-size: 20px 20px;
+                opacity: 0.5;
+            }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 150px;
+            backdrop-filter: blur(5px);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+            .feature-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .feature-icon {
+            color: #1e3c72;
+        }
+
+        @@media (max-width: 768px) {
+            .hero-section {
+                padding: 3rem 0;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .stat-card {
+                width: 100%;
+            }
+        }
+    </style>
+}
+
+@section StyleLinks {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+}

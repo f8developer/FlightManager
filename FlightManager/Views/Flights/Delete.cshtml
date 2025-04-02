@@ -7,8 +7,16 @@
 <h1>Delete</h1>
 
 <h3>Are you sure you want to delete this?</h3>
+
 <div>
     <h4>Flight</h4>
+    @if (ViewBag.HasReservations)
+    {
+        <div class="alert alert-warning">
+            <strong>Warning!</strong> This flight has @ViewBag.ReservationCount associated reservation(s).
+            Deleting this flight will also delete all reservations as well as every user associated with it.
+        </div>
+    }
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">

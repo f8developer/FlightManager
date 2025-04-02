@@ -112,6 +112,7 @@ public class AdminController : Controller
     /// </summary>
     /// <param name="id">The user ID.</param>
     /// <returns>The user details view or NotFound if user doesn't exist.</returns>
+    [Authorize(Roles = "Owner")]
     public async Task<IActionResult> Details(string? id)
     {
         if (id == null)
@@ -133,6 +134,7 @@ public class AdminController : Controller
     /// Displays the user creation form.
     /// </summary>
     /// <returns>The user creation view.</returns>
+    [Authorize(Roles = "Owner")]
     public async Task<IActionResult> Create()
     {
         ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
@@ -149,6 +151,7 @@ public class AdminController : Controller
     /// <returns>Redirects to user list on success or returns creation view with errors.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Owner")]
     public async Task<IActionResult> Create(
         [Bind("UserName,Email,PhoneNumber")] AppUser appUser,
         string password,
@@ -217,6 +220,7 @@ public class AdminController : Controller
     /// </summary>
     /// <param name="id">The user ID to edit.</param>
     /// <returns>The edit view or NotFound if user doesn't exist.</returns>
+    [Authorize(Roles = "Owner")]
     public async Task<IActionResult> Edit(string id)
     {
         if (id == null)
@@ -250,6 +254,7 @@ public class AdminController : Controller
     /// <returns>Redirects to user list on success or returns edit view with errors.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Owner")]
     public async Task<IActionResult> Edit(string id, [Bind("Id,UserName,Email,PhoneNumber")] AppUser user, List<string> selectedRoles)
     {
         if (id != user.Id)
@@ -263,7 +268,7 @@ public class AdminController : Controller
             return NotFound();
         }
 
-        if (existingUser.Email == "owner@example.com")
+        if (existingUser.Email == _ownerSettings.OwnerEmail)
         {
             TempData["ErrorMessage"] = "The owner account cannot be modified.";
             return RedirectToAction(nameof(Index));
@@ -323,6 +328,7 @@ public class AdminController : Controller
     /// </summary>
     /// <param name="id">The user ID to delete.</param>
     /// <returns>The deletion confirmation view or NotFound if user doesn't exist.</returns>
+    [Authorize(Roles = "Owner")]
     public async Task<IActionResult> Delete(string? id)
     {
         if (id == null)
@@ -348,6 +354,7 @@ public class AdminController : Controller
     /// <returns>Redirects to user list or returns error view.</returns>
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Owner")]
     public async Task<IActionResult> DeleteConfirmed(string id)
     {
         var user = await _userManager.FindByIdAsync(id);
@@ -385,6 +392,7 @@ public class AdminController : Controller
     /// Displays the role creation form.
     /// </summary>
     /// <returns>The role creation view.</returns>
+    [Authorize(Roles = "Owner")]
     public IActionResult CreateRole()
     {
         return View();
@@ -397,6 +405,7 @@ public class AdminController : Controller
     /// <returns>Redirects to role list on success or returns creation view with errors.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Owner")]
     public async Task<IActionResult> CreateRole([Bind("Name")] IdentityRole role)
     {
         if (ModelState.IsValid)
@@ -420,6 +429,7 @@ public class AdminController : Controller
     /// </summary>
     /// <param name="id">The role ID to delete.</param>
     /// <returns>The deletion confirmation view or NotFound if role doesn't exist.</returns>
+    [Authorize(Roles = "Owner")]
     public async Task<IActionResult> DeleteRole(string id)
     {
         if (id == null)
@@ -447,6 +457,7 @@ public class AdminController : Controller
     /// <returns>Redirects to role list or returns error view.</returns>
     [HttpPost, ActionName("DeleteRole")]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Owner")]
     public async Task<IActionResult> DeleteRoleConfirmed(string id)
     {
         var role = await _roleManager.FindByIdAsync(id);

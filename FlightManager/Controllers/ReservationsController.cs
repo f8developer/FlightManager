@@ -1,10 +1,12 @@
 ﻿using FlightManager.Data;
 using FlightManager.Data.Models;
+using FlightManager.EmailService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace FlightManager.Controllers;
 
@@ -17,6 +19,7 @@ public class ReservationsController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _env;
     public UserManager<AppUser> _userManager;
+    private readonly BrevoEmailService _emailService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ReservationsController"/> class.
@@ -24,14 +27,17 @@ public class ReservationsController : Controller
     /// <param name="context">The application database context.</param>
     /// <param name="env">The web hosting environment.</param>
     /// <param name="userManager">The user manager service.</param>
+    /// <param name="emailService">The email service.</param>
     public ReservationsController(
         ApplicationDbContext context,
         IWebHostEnvironment env,
-        UserManager<AppUser> userManager)
+        UserManager<AppUser> userManager,
+        BrevoEmailService emailService)
     {
         _context = context;
         _env = env;
         _userManager = userManager;
+        _emailService = emailService;
     }
 
     /// <summary>
@@ -45,9 +51,9 @@ public class ReservationsController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Index(string? id, string? username, string? firstName, string? lastName)
     {
-        var isAdmin = User.IsInRole("Admin");
+        var isPrivileged = User.IsInRole("Admin") || User.IsInRole("Employee");
 
-        if (isAdmin)
+        if (isPrivileged)
         {
             var allReservations = await _context.Reservations
                 .Include(r => r.Flight)
@@ -103,13 +109,33 @@ public class ReservationsController : Controller
     /// </summary>
     /// <returns>The reservation creation view.</returns>
     [AllowAnonymous]
-    public IActionResult Create()
+    public IActionResult Create(string email = "")
     {
-        // Retrieve flights from the database
-        var flights = _context.Flights.ToList();
+        // Get all flights with their reservations
+        var flightsWithReservations = _context.Flights
+            .Include(f => f.Reservations)
+            .ToList();
+
+        // Filter out fully booked flights
+        var availableFlights = flightsWithReservations
+            .Where(f =>
+            {
+                var businessReserved = f.Reservations.Count(r => r.TicketType == TicketType.Business);
+                var standardReserved = f.Reservations.Count(r => r.TicketType != TicketType.Business);
+                var standardCapacity = f.PassengerCapacity - f.BusinessClassCapacity;
+
+                return businessReserved < f.BusinessClassCapacity ||
+                       standardReserved < standardCapacity;
+            })
+            .ToList();
+
+        if (!availableFlights.Any())
+        {
+            ViewBag.NoFlightsAvailable = "Currently there are no flights with available seats.";
+        }
 
         // Create a list of SelectListItems with detailed flight information
-        var flightList = flights.Select(f => new SelectListItem
+        var flightList = availableFlights.Select(f => new SelectListItem
         {
             Value = f.Id.ToString(),
             Text = $"{f.AircraftNumber} - {f.FromLocation} → {f.ToLocation} ({f.DepartureTime.ToString("g")} - {f.ArrivalTime.ToString("g")})"
@@ -117,8 +143,8 @@ public class ReservationsController : Controller
 
         // Pass the flight list to the ViewData to populate the dropdown in the view
         ViewData["FlightId"] = new SelectList(flightList, "Value", "Text");
-
         ViewBag.FlightList = flightList;
+        ViewData["Email"] = email;
 
         return View();
     }
@@ -131,12 +157,49 @@ public class ReservationsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [AllowAnonymous]
-    public async Task<IActionResult> Create([Bind("FlightId,Nationality,TicketType,ReservationUser")] Reservation reservation)
+    public async Task<IActionResult> Create(
+    [Bind("FlightId,Nationality,TicketType,ReservationUser")] Reservation reservation,
+    string email)
+
     {
         ModelState.Remove("Flight");
         ModelState.Remove("ReservationUser.Reservations");
         ModelState.Remove("ReservationUserId");
-        reservation.ReservationUser.AppUserId = _userManager.GetUserId(User);
+        if (!string.IsNullOrWhiteSpace(email) && !new EmailAddressAttribute().IsValid(email))
+        {
+            ModelState.AddModelError("", "Please enter a valid email address");
+        }
+
+        // Get the flight information
+        var flight = await _context.Flights
+            .Include(f => f.Reservations)
+            .FirstOrDefaultAsync(f => f.Id == reservation.FlightId);
+
+        if (flight == null)
+        {
+            ModelState.AddModelError("", "Selected flight does not exist.");
+        }
+        else
+        {
+            // Check seat availability based on ticket type
+            if (reservation.TicketType == TicketType.Business)
+            {
+                var businessReserved = flight.Reservations.Count(r => r.TicketType == TicketType.Business);
+                if (businessReserved >= flight.BusinessClassCapacity)
+                {
+                    ModelState.AddModelError("", "No available seats in business class for this flight.");
+                }
+            }
+            else
+            {
+                var standardReserved = flight.Reservations.Count(r => r.TicketType != TicketType.Business);
+                var standardCapacity = flight.PassengerCapacity - flight.BusinessClassCapacity;
+                if (standardReserved >= standardCapacity)
+                {
+                    ModelState.AddModelError("", "No available seats in economy class for this flight.");
+                }
+            }
+        }
 
         // Manual validation for existing reservation
         if (reservation.ReservationUser != null)
@@ -177,12 +240,57 @@ public class ReservationsController : Controller
 
             _context.Reservations.Add(reservation);
             await _context.SaveChangesAsync();
+
+            // Send email notification if requested and email is valid
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                try
+                {
+                    var user = reservation.ReservationUser;
+
+                    if (user != null && flight != null)
+                    {
+                        var emailContent = Extensions.GenerateReservationEmail.ReservationEmail(reservation, flight, user);
+                        _emailService.SendEmail(
+                            subject: $"Your Flight Reservation Confirmation #{reservation.Id}",
+                            htmlContent: emailContent,
+                            recipientEmail: email,
+                            recipientName: user.UserName
+                        );
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error sending email: {ex.Message}");
+                }
+            }
             return RedirectToAction("Details", new { id = reservation.Id });
         }
+        var flightsWithReservations = _context.Flights
+            .Include(f => f.Reservations)
+            .ToList();
 
         // Repopulate flight list if validation fails
-        var flightList = new SelectList(
-            _context.Flights.Select(f => new {
+        var availableFlights = flightsWithReservations
+            .Where(f =>
+            {
+                var businessReserved = f.Reservations.Count(r => r.TicketType == TicketType.Business);
+                var standardReserved = f.Reservations.Count(r => r.TicketType != TicketType.Business);
+                var standardCapacity = f.PassengerCapacity - f.BusinessClassCapacity;
+
+                return businessReserved < f.BusinessClassCapacity ||
+                       standardReserved < standardCapacity;
+            })
+            .ToList();
+
+        if (!availableFlights.Any())
+        {
+            ViewBag.NoFlightsAvailable = "Currently there are no flights with available seats.";
+        }
+
+        ViewData["FlightId"] = new SelectList(
+            availableFlights.Select(f => new
+            {
                 f.Id,
                 DisplayText = $"{f.AircraftNumber} - {f.FromLocation} → {f.ToLocation} ({f.DepartureTime:g} - {f.ArrivalTime:g})"
             }),
@@ -190,9 +298,8 @@ public class ReservationsController : Controller
             "DisplayText",
             reservation.FlightId
         );
-
-        ViewData["FlightId"] = flightList;
-        ViewBag.FlightList = flightList;
+        ViewBag.FlightList = ViewData["FlightId"];
+        ViewData["Email"] = email;
 
         return View(reservation);
     }

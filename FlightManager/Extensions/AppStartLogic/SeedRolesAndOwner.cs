@@ -11,13 +11,13 @@ namespace FlightManager.Extensions.AppStartLogic;
 internal class SeedRolesAndOwner
 {
     /// <summary>
-    /// Seeds the database with required roles and creates the owner user if they don't exist.
+    /// Seeds the database with required roles and ensures the owner user exists with the latest password.
     /// </summary>
     /// <param name="scope">The IServiceScope containing required services.</param>
     /// <param name="ownerSettings">Configuration settings for the owner user.</param>
     /// <returns>A Task representing the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown when owner password is not configured.</exception>
-    /// <exception cref="Exception">Thrown when owner user creation fails.</exception>
+    /// <exception cref="Exception">Thrown when owner user creation or update fails.</exception>
     internal static async Task SeedRolesAndOwnerAsync(IServiceScope scope, OwnerSettings ownerSettings)
     {
         var services = scope.ServiceProvider;
@@ -27,12 +27,13 @@ internal class SeedRolesAndOwner
             var userManager = services.GetRequiredService<UserManager<AppUser>>();
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
             var configuration = services.GetRequiredService<IConfiguration>();
+            var logger = services.GetRequiredService<ILogger<SeedRolesAndOwner>>();
 
             // Apply pending migrations
             await context.Database.MigrateAsync();
 
             // Create roles if they don't exist
-            string[] roles = { "Admin", "Owner" };
+            string[] roles = { "Employee", "Admin", "Owner" };
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
@@ -42,42 +43,52 @@ internal class SeedRolesAndOwner
             }
 
             var ownerEmail = ownerSettings.OwnerEmail;
+            var ownerPassword = ownerSettings.OwnerPassword ??
+                                configuration["OwnerPassword"] ??
+                                Environment.GetEnvironmentVariable("OwnerPassword");
 
-            // Setup owner user
-            var ownerUser = new AppUser
+            if (string.IsNullOrEmpty(ownerPassword))
             {
-                UserName = ownerEmail,
-                Email = ownerEmail
-            };
+                throw new InvalidOperationException("Owner password not configured in secrets.");
+            }
 
-            // Create admin user if no users exist
-            if (await userManager.FindByEmailAsync(ownerUser.Email.ToString()) == null)
+            // Check if owner exists
+            var ownerUser = await userManager.FindByEmailAsync(ownerEmail);
+
+            if (ownerUser == null)
             {
-                var ownerPassword = ownerSettings.OwnerPassword ??
-                                    configuration["OwnerPassword"] ??
-                                    Environment.GetEnvironmentVariable("OwnerPassword");
-                if (string.IsNullOrEmpty(ownerPassword))
+                // Create new owner user if not found
+                ownerUser = new AppUser
                 {
-                    throw new InvalidOperationException("Owner password not configured in secrets.");
-                }
-                // Create the user with a secure password
-                var result = await userManager.CreateAsync(ownerUser, ownerPassword);
-                if (!result.Succeeded)
+                    UserName = ownerEmail,
+                    Email = ownerEmail
+                };
+
+                var createResult = await userManager.CreateAsync(ownerUser, ownerPassword);
+                if (!createResult.Succeeded)
                 {
-                    var logger = services.GetRequiredService<ILogger<SeedRolesAndOwner>>();
-                    logger.LogError("Failed to create Owner user. Errors: {Errors}", string.Join(", ", result.Errors));
+                    logger.LogError("Failed to create Owner user. Errors: {Errors}", string.Join(", ", createResult.Errors));
                     throw new Exception("Failed to create Owner user.");
                 }
 
-                if (result.Succeeded)
+                // Assign roles to owner
+                await userManager.AddToRolesAsync(ownerUser, roles);
+            }
+            else
+            {
+                // Ensure the owner has all required roles
+                foreach (var role in roles)
                 {
-                    // Assign both roles to the admin user
-                    await userManager.AddToRolesAsync(ownerUser, roles);
+                    if (!await userManager.IsInRoleAsync(ownerUser, role))
+                    {
+                        await userManager.AddToRoleAsync(ownerUser, role);
+                    }
                 }
-                else
-                {
-                    Console.WriteLine("Failed to create admin user: {Errors}", result.Errors);
-                }
+
+                // Update the owner's password to the latest one
+                var passwordHash = userManager.PasswordHasher.HashPassword(ownerUser, ownerPassword);
+                ownerUser.PasswordHash = passwordHash;
+                await userManager.UpdateAsync(ownerUser);
             }
         }
         catch (Exception ex)

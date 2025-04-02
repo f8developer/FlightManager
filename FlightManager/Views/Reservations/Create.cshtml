@@ -8,10 +8,39 @@
 
 <div class="container mt-4">
     <div class="card shadow-sm">
+        @if (ViewBag.NoFlightsAvailable != null)
+    {
+            <div class="card-header bg-warning text-white">
+                <h4 class="mb-0">No Flights Available</h4>
+            </div>
+            <div class="card-body text-center">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                    <h4>@ViewBag.NoFlightsAvailable</h4>
+                </div>
+                <a asp-action="Index" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Reservations
+                </a>
+            </div>
+    }
+    else
+    {
         <div class="card-header bg-primary text-white">
             <h4 class="mb-0">Create Reservation</h4>
         </div>
         <div class="card-body">
+            <!-- Display general form errors -->
+            @if (ViewData.ModelState[""]?.Errors.Count > 0)
+            {
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach (var error in ViewData.ModelState[""].Errors)
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
+            }
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
@@ -100,34 +129,29 @@
                         </div>
                     </div>
                 </div>
-
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="Email" class="control-label">Email Address (optional but recommended)</label>
+                            <input type="email" class="form-control" id="Email" name="Email" />
+                            <small class="form-text text-muted">We'll send your reservation confirmation to this address</small>
+                            <span class="text-danger field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group mt-3 text-center">
                     <button type="submit" class="btn btn-primary btn-lg">
                         <i class="fas fa-save"></i> Create Reservation
                     </button>
                 </div>
             </form>
-
-            @if (ViewData["ModelErrors"] != null)
-            {
-                <div class="alert alert-danger mt-3">
-                    <h4>Validation Errors (Development Only)</h4>
-                    <ul>
-                        @foreach (var error in (dynamic)ViewData["ModelErrors"])
-                        {
-                            <li>
-                                <strong>@error.Field</strong>: @string.Join(", ", error.Errors)
-                            </li>
-                        }
-                    </ul>
-                </div>
-            }
         </div>
-    </div>
-    <div class="mt-3 text-center">
-        <a asp-action="Index" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back to List
-        </a>
+        <div class="mt-3 text-center">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    }
     </div>
 </div>
 
@@ -138,6 +162,15 @@
 
     <script>
         $(document).ready(function() {
+            // Initialize checkbox state from server
+            var receiveEmail = @(ViewData["ReceiveEmail"] != null ? ViewData["ReceiveEmail"].ToString().ToLower() : "true");
+
+            // Set initial required state
+            if (receiveEmail) {
+                $('#Email').prop('required', true);
+                $('#Email').closest('.form-group').find('label').append(' <span class="text-danger">*</span>');
+            }
+
             // Real-time EGN validation
             $('#ReservationUser_EGN').on('blur', function() {
                 var egn = $(this).val();
@@ -146,7 +179,6 @@
                 if (egn && flightId) {
                     $.get('/Reservations/CheckReservation', { egn: egn, flightId: flightId }, function(data) {
                         if (data.exists) {
-                            // Display error message
                             $('#reservation-error').remove();
                             $('#ReservationUser_EGN').after(
                                 '<span id="reservation-error" class="text-danger">This user already has a reservation for this flight.</span>'
@@ -155,6 +187,18 @@
                             $('#reservation-error').remove();
                         }
                     });
+                }
+            });
+
+            // Toggle email field requirement
+            $('#ReceiveEmail').change(function() {
+                var emailField = $('#Email');
+                if ($(this).is(':checked')) {
+                    emailField.prop('required', true);
+                    emailField.closest('.form-group').find('label').append(' <span class="text-danger">*</span>');
+                } else {
+                    emailField.prop('required', false);
+                    emailField.closest('.form-group').find('label span').remove();
                 }
             });
         });

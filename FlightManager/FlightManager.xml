@@ -420,15 +420,16 @@
             Controller for handling general application views.
             </summary>
         </member>
-        <member name="M:FlightManager.Controllers.HomeController.#ctor(Microsoft.Extensions.Logging.ILogger{FlightManager.Controllers.HomeController})">
+        <member name="M:FlightManager.Controllers.HomeController.#ctor(Microsoft.Extensions.Logging.ILogger{FlightManager.Controllers.HomeController},FlightManager.Data.ApplicationDbContext)">
             <summary>
             Initializes a new instance of the <see cref="T:FlightManager.Controllers.HomeController"/> class.
             </summary>
             <param name="logger">The logger service.</param>
+            <param name="context">The database context.</param>
         </member>
         <member name="M:FlightManager.Controllers.HomeController.Index">
             <summary>
-            Displays the home page.
+            Displays the home page with flight statistics.
             </summary>
             <returns>The home page view.</returns>
         </member>
@@ -444,18 +445,24 @@
             </summary>
             <returns>The error view.</returns>
         </member>
+        <member name="T:FlightManager.Controllers.HomeViewModel">
+            <summary>
+            ViewModel for the home page statistics.
+            </summary>
+        </member>
         <member name="T:FlightManager.Controllers.ReservationsController">
             <summary>
             Controller for managing flight reservations.
             </summary>
         </member>
-        <member name="M:FlightManager.Controllers.ReservationsController.#ctor(FlightManager.Data.ApplicationDbContext,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.Identity.UserManager{FlightManager.Data.Models.AppUser})">
+        <member name="M:FlightManager.Controllers.ReservationsController.#ctor(FlightManager.Data.ApplicationDbContext,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.Identity.UserManager{FlightManager.Data.Models.AppUser},FlightManager.EmailService.BrevoEmailService)">
             <summary>
             Initializes a new instance of the <see cref="T:FlightManager.Controllers.ReservationsController"/> class.
             </summary>
             <param name="context">The application database context.</param>
             <param name="env">The web hosting environment.</param>
             <param name="userManager">The user manager service.</param>
+            <param name="emailService">The email service.</param>
         </member>
         <member name="M:FlightManager.Controllers.ReservationsController.Index(System.String,System.String,System.String,System.String)">
             <summary>
@@ -474,13 +481,13 @@
             <param name="id">The reservation ID.</param>
             <returns>The reservation details view or NotFound.</returns>
         </member>
-        <member name="M:FlightManager.Controllers.ReservationsController.Create">
+        <member name="M:FlightManager.Controllers.ReservationsController.Create(System.String)">
             <summary>
             Displays the reservation creation form.
             </summary>
             <returns>The reservation creation view.</returns>
         </member>
-        <member name="M:FlightManager.Controllers.ReservationsController.Create(FlightManager.Data.Models.Reservation)">
+        <member name="M:FlightManager.Controllers.ReservationsController.Create(FlightManager.Data.Models.Reservation,System.String)">
             <summary>
             Handles reservation creation form submission.
             </summary>
@@ -625,13 +632,13 @@
         </member>
         <member name="M:FlightManager.Extensions.AppStartLogic.SeedRolesAndOwner.SeedRolesAndOwnerAsync(Microsoft.Extensions.DependencyInjection.IServiceScope,FlightManager.OwnerSettings)">
             <summary>
-            Seeds the database with required roles and creates the owner user if they don't exist.
+            Seeds the database with required roles and ensures the owner user exists with the latest password.
             </summary>
             <param name="scope">The IServiceScope containing required services.</param>
             <param name="ownerSettings">Configuration settings for the owner user.</param>
             <returns>A Task representing the asynchronous operation.</returns>
             <exception cref="T:System.InvalidOperationException">Thrown when owner password is not configured.</exception>
-            <exception cref="T:System.Exception">Thrown when owner user creation fails.</exception>
+            <exception cref="T:System.Exception">Thrown when owner user creation or update fails.</exception>
         </member>
         <member name="T:FlightManager.Program">
             <summary>

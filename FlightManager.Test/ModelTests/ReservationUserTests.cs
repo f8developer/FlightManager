@@ -1,8 +1,5 @@
-﻿using NUnit.Framework;
-using System.Collections.Generic;
+﻿using FlightManager.Data.Models;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using FlightManager.Data.Models;
 
 namespace FlightManager.Test.ModelTests;
 

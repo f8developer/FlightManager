@@ -1,5 +1,6 @@
 using FlightManager.Data;
 using FlightManager.Data.Models;
+using FlightManager.EmailService;
 using FlightManager.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,9 @@ public class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+        // Configure email service
+        builder.Services.AddTransient<BrevoEmailService>();
 
         // Bind the configuration section to a strongly-typed object
         builder.Services.Configure<OwnerSettings>(builder.Configuration.GetSection("OwnerSettings"));

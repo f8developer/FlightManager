@@ -22,7 +22,10 @@
 
 <div class="d-flex justify-content-between mb-3">
     <a asp-action="Index" class="btn btn-secondary">Back to User View</a>
-    <a asp-action="CreateRole" class="btn btn-success">Create New Role</a>
+    @if (User.IsInRole("Owner"))
+    {
+        <a asp-action="CreateRole" class="btn btn-success">Create New Role</a>
+    }
 </div>
 
 <table class="table table-striped">
@@ -52,7 +55,7 @@
                     }
                 </td>
                 <td>
-                    @if (userCount == 0)
+                    @if (userCount == 0 && User.IsInRole("Owner"))
                     {
                         <a asp-action="DeleteRole" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
                     }

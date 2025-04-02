@@ -9,7 +9,7 @@ namespace FlightManager.Controllers;
 /// <summary>
 /// Controller for managing flight operations.
 /// </summary>
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Employee")]
 public class FlightsController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -56,6 +56,7 @@ public class FlightsController : Controller
         }
 
         var flight = await _context.Flights
+            .Include(f => f.Reservations)
             .FirstOrDefaultAsync(m => m.Id == id);
         if (flight == null)
         {
@@ -69,6 +70,7 @@ public class FlightsController : Controller
     /// Displays the flight creation form.
     /// </summary>
     /// <returns>The flight creation view.</returns>
+    [Authorize(Roles = "Admin")]
     public IActionResult Create()
     {
         return View(); // Ensure a new instance is passed
@@ -81,6 +83,7 @@ public class FlightsController : Controller
     /// <returns>Redirects to flight list on success or returns creation view with errors.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(Flight flight)
     {
         // Clear existing model state for custom validated fields
@@ -143,6 +146,7 @@ public class FlightsController : Controller
     /// </summary>
     /// <param name="id">The flight ID to edit.</param>
     /// <returns>The edit view or NotFound if flight doesn't exist.</returns>
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -166,6 +170,7 @@ public class FlightsController : Controller
     /// <returns>Redirects to flight list on success or returns edit view with errors.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id, Flight flight)
     {
         if (id != flight.Id)
@@ -237,6 +242,7 @@ public class FlightsController : Controller
     /// </summary>
     /// <param name="id">The flight ID to delete.</param>
     /// <returns>The deletion confirmation view or NotFound if flight doesn't exist.</returns>
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -245,10 +251,18 @@ public class FlightsController : Controller
         }
 
         var flight = await _context.Flights
+            .Include(f => f.Reservations)
             .FirstOrDefaultAsync(m => m.Id == id);
+
         if (flight == null)
         {
             return NotFound();
+        }
+
+        if (flight.Reservations.Any())
+        {
+            ViewBag.HasReservations = true;
+            ViewBag.ReservationCount = flight.Reservations.Count;
         }
 
         return View(flight);
@@ -261,15 +275,44 @@ public class FlightsController : Controller
     /// <returns>Redirects to flight list.</returns>
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var flight = await _context.Flights.FindAsync(id);
+        var flight = await _context.Flights
+            .Include(f => f.Reservations)
+                .ThenInclude(r => r.ReservationUser) // Include ReservationUsers
+            .FirstOrDefaultAsync(f => f.Id == id);
+
         if (flight != null)
         {
+            // Get all ReservationUsers that are ONLY associated with this flight
+            var usersToDelete = flight.Reservations
+                .Select(r => r.ReservationUser)
+                .Where(u =>
+                    // Only delete users that don't have other reservations
+                    !_context.Reservations.Any(r =>
+                        r.ReservationUserId == u.Id &&
+                        r.FlightId != flight.Id) &&
+                    // And aren't linked to an AppUser
+                    u.AppUserId == null)
+                .Distinct()
+                .ToList();
+
+            // First delete all reservations
+            _context.Reservations.RemoveRange(flight.Reservations);
+
+            // Then delete the associated ReservationUsers (if they meet criteria)
+            _context.ReservationUsers.RemoveRange(usersToDelete);
+
+            // Finally delete the flight
             _context.Flights.Remove(flight);
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Flight and {flight.Reservations.Count} associated reservation(s) deleted successfully. " +
+                                       $"{usersToDelete.Count} unused passenger record(s) were also removed.";
         }
 
-        await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
 
@@ -278,7 +321,7 @@ public class FlightsController : Controller
     /// </summary>
     /// <param name="id">The flight ID.</param>
     /// <returns>The passengers list view or NotFound if flight doesn't exist.</returns>
-    [HttpGet]
+    [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> Passengers(int id)
     {
         var flight = await _context.Flights

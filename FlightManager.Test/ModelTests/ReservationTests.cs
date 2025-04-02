@@ -1,12 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using System;
-using FlightManager.Data;
+﻿using FlightManager.Data;
 using FlightManager.Data.Models;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace FlightManager.Test.ModelTests;
 
@@ -97,7 +92,7 @@ public class ReservationTests
             Nationality = "American",
             TicketType = TicketType.Economy
         };
-    
+
         _context.Reservations.Add(reservation);
         _context.SaveChanges();
 
@@ -119,8 +114,8 @@ public class ReservationTests
         validationResults.AddRange(validateResults);
 
         // Assert
-        Assert.That(validationResults.Any(v => 
-                v.ErrorMessage == "This user already has a reservation for this flight."), 
+        Assert.That(validationResults.Any(v =>
+                v.ErrorMessage == "This user already has a reservation for this flight."),
             Is.True);
     }
 
@@ -149,8 +144,8 @@ public class ReservationTests
         validationResults.AddRange(validateResults);
 
         // Assert
-        Assert.That(validationResults.Any(v => 
-                v.ErrorMessage == "Database context is unavailable."), 
+        Assert.That(validationResults.Any(v =>
+                v.ErrorMessage == "Database context is unavailable."),
             Is.True);
     }
 
