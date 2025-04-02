@@ -35,7 +35,7 @@ graph TD
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/yourusername/FlightManager.git
+   git clone https://github.com/f8developer/FlightManager.git
    ```
 2. Configure database connection in `appsettings.json`
 3. Set up admin credentials in `secrets.json`
