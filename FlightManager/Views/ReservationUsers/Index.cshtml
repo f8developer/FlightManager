@@ -1,19 +1,51 @@
-﻿@model IEnumerable<FlightManager.Data.Models.ReservationUser>
+﻿@using FlightManager.Data.Models
+@model PaginatedList<FlightManager.Data.Models.ReservationUser>
 
 @{
     ViewData["Title"] = "Reservation Users";
+    bool isPrivileged = User.IsInRole("Admin") || User.IsInRole("Employee");
 }
 
 <div class="container reservation-index">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Reservation Users</h1>
+        <h1>Reservation User Management</h1>
         @if (User.IsInRole("Admin"))
         {
             <a asp-action="Create" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Add New Reservation User
+                <i class="fas fa-plus me-1"></i> Create New
             </a>
         }
     </div>
+
+    <!-- Filter Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <label for="searchString" class="form-label">Search Users</label>
+                    <input type="text" class="form-control" id="searchString" name="searchString"
+                           value="@ViewBag.CurrentFilter" placeholder="Search by name, email or phone">
+                </div>
+                <input type="hidden" name="pageSize" value="@ViewBag.CurrentPageSize" />
+                <div class="col-md-6 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!Model.Any() && ViewBag.CurrentFilter != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> No users found matching your criteria.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
     <div class="card shadow-sm">
         <div class="card-body p-0">
@@ -21,14 +53,10 @@
                 <table class="table table-hover mb-0">
                     <thead class="thead-light">
                         <tr>
-                            <th>User Name</th>
-                            <th>First Name</th>
-                            <th>Middle Name</th>
-                            <th>Last Name</th>
-                            <th>EGN</th>
-                            <th>Address</th>
-                            <th>Phone Number</th>
-                            <th>AppUser Email</th>
+                            <th>Name</th>
+                            <th>Contact Info</th>
+                            <th>Identification</th>
+                            <th>Account Status</th>
                             <th class="text-end">Actions</th>
                         </tr>
                     </thead>
@@ -36,34 +64,65 @@
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td>@Html.DisplayFor(modelItem => item.UserName)</td>
-                                <td>@Html.DisplayFor(modelItem => item.FirstName)</td>
-                                <td>@Html.DisplayFor(modelItem => item.MiddleName)</td>
-                                <td>@Html.DisplayFor(modelItem => item.LastName)</td>
-                                <td>@Html.DisplayFor(modelItem => item.EGN)</td>
-                                <td>@Html.DisplayFor(modelItem => item.Address)</td>
-                                <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
                                 <td>
-                                    @if (item.AppUser != null)
+                                    <div class="fw-bold">@item.FirstName @item.LastName</div>
+                                    <div class="small text-muted">@item.UserName</div>
+                                    @if (!string.IsNullOrEmpty(item.MiddleName))
                                     {
-                                        @item.AppUser.Email
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">No User</span>
+                                        <div class="small text-muted">@item.MiddleName</div>
                                     }
                                 </td>
                                 <td>
-                                    <div class="d-flex justify-content-end gap-2">
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning" title="Edit">
-                                            <i class="fas fa-edit me-1"></i>Edit
+                                    @if (!string.IsNullOrEmpty(item.Email))
+                                    {
+                                        <div><i class="fas fa-envelope me-1"></i> @item.Email</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.PhoneNumber))
+                                    {
+                                        <div><i class="fas fa-phone me-1"></i> @item.PhoneNumber</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.Address))
+                                    {
+                                        <div><i class="fas fa-map-marker-alt me-1"></i> @item.Address</div>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.EGN))
+                                    {
+                                        <div class="small">EGN: @item.EGN</div>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.AppUser != null)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i> Active
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-clock me-1"></i> Guest
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Details">
+                                            <i class="fas fa-eye"></i>
                                         </a>
-                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info" title="Details">
-                                            <i class="fas fa-eye me-1"></i>View
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Delete">
-                                            <i class="fas fa-trash-alt me-1"></i>Delete
-                                        </a>
+                                        @if (isPrivileged)
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            @if (User.IsInRole("Admin"))
+                                            {
+                                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </a>
+                                            }
+                                        }
                                     </div>
                                 </td>
                             </tr>
@@ -73,34 +132,144 @@
             </div>
         </div>
     </div>
+
+    <!-- Pagination controls -->
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center">
+                <span class="me-2">Show:</span>
+                <select class="form-select form-select-sm w-auto" id="pageSizeSelect">
+                    @foreach (var size in ViewBag.AvailablePageSizes)
+                    {
+                        <option value="@size" selected="@(size == ViewBag.CurrentPageSize)">@size</option>
+                    }
+                </select>
+                <span class="ms-2">items per page</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-end">
+                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-pageNumber="@(Model.PageIndex - 1)"
+                           asp-route-pageSize="@ViewBag.CurrentPageSize"
+                           asp-route-searchString="@ViewBag.CurrentFilter">
+                            Previous
+                        </a>
+                    </li>
+
+                    @for (var i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-pageNumber="@i"
+                               asp-route-pageSize="@ViewBag.CurrentPageSize"
+                               asp-route-searchString="@ViewBag.CurrentFilter">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-pageNumber="@(Model.PageIndex + 1)"
+                           asp-route-pageSize="@ViewBag.CurrentPageSize"
+                           asp-route-searchString="@ViewBag.CurrentFilter">
+                            Next
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
 </div>
+
+@section StyleLinks {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+}
 
 @section Styles {
     <style>
         .reservation-index {
-            max-width: 1400px;
+            max-width: 1600px;
         }
 
         .table th {
             white-space: nowrap;
+            font-weight: 600;
+            background-color: #f8f9fa;
         }
 
         .table td {
             vertical-align: middle;
         }
 
-            .table td:last-child {
-                white-space: nowrap;
-                width: 1%;
-            }
+        .badge {
+            font-size: 0.75em;
+            padding: 0.5em 0.75em;
+            font-weight: 500;
+        }
 
         .btn-sm {
-            padding: 0.25rem 0.5rem;
+            padding: 0.3rem 0.5rem;
             font-size: 0.75rem;
+            border-radius: 0.25rem;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: white !important;
+        }
+
+        .pagination .page-link {
+            color: #0d6efd;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .alert {
+            border-radius: 0.375rem;
+        }
+
+        .form-select, .form-control {
+            border-radius: 0.375rem;
+            border: 1px solid #ced4da;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
         }
     </style>
 }
 
-@section StyleLinks {
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+@section Scripts {
+    <script>
+        document.getElementById('pageSizeSelect').addEventListener('change', function() {
+            const pageSize = this.value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('pageSize', pageSize);
+            url.searchParams.set('pageNumber', 1);
+            window.location.href = url.toString();
+        });
+
+        // Initialize tooltips
+        $(function () {
+            $('[title]').tooltip({
+                trigger: 'hover',
+                placement: 'top'
+            });
+        });
+    </script>
 }

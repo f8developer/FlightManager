@@ -16,7 +16,8 @@
                         <div class="col-md-6">
                             <h5 class="text-muted">Passenger Information</h5>
                             <p>
-                                <strong>Passenger:</strong> @if (Model.ReservationUser != null)
+                                <strong>Passenger:</strong>
+                                @if (Model.ReservationUser != null)
                                 {
                                     <a asp-controller="ReservationUsers" asp-action="Details" asp-route-id="@Model.ReservationUser.Id">
                                         @Model.ReservationUser.UserName
@@ -29,6 +30,11 @@
                             </p>
                             <p><strong>Nationality:</strong> @Model.Nationality</p>
                             <p><strong>Ticket Type:</strong> @Model.TicketType</p>
+                            <p><strong>Created:</strong> @Model.CreatedAt.ToString("g")</p>
+                            @if (Model.IsConfirmed)
+                            {
+                                <p><strong>Confirmed:</strong> @Model.ConfirmedAt?.ToString("g")</p>
+                            }
                         </div>
                         <div class="col-md-6">
                             <h5 class="text-muted">Flight Information</h5>

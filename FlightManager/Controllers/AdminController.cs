@@ -1,488 +1,371 @@
-﻿using FlightManager.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using FlightManager.Data;
 using FlightManager.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace FlightManager.Controllers;
-
-/// <summary>
-/// Controller for handling administrative operations including user and role management.
-/// </summary>
-[Authorize(Roles = "Admin, Owner")]
-public class AdminController : Controller
+namespace FlightManager.Controllers
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IWebHostEnvironment _env;
-    private readonly UserManager<AppUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
-    private readonly OwnerSettings _ownerSettings;
-
     /// <summary>
-    /// Initializes a new instance of the <see cref="AdminController"/> class.
+    /// Controller for handling administrative operations including user and role management.
     /// </summary>
-    /// <param name="context">The application database context.</param>
-    /// <param name="env">The web hosting environment.</param>
-    /// <param name="userManager">The user manager service.</param>
-    /// <param name="roleManager">The role manager service.</param>
-    /// <param name="ownerSettings">The owner configuration settings.</param>
-    public AdminController(
-        ApplicationDbContext context,
-        IWebHostEnvironment env,
-        UserManager<AppUser> userManager,
-        RoleManager<IdentityRole> roleManager,
-        OwnerSettings ownerSettings)
+    [Authorize(Roles = "Admin,Owner")]
+    public class AdminController : Controller
     {
-        _context = context;
-        _env = env;
-        _userManager = userManager;
-        _roleManager = roleManager;
-        _ownerSettings = ownerSettings;
-    }
+        private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _env;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly OwnerSettings _ownerSettings;
 
-    /// <summary>
-    /// Displays a list of users with optional filtering by email and role.
-    /// </summary>
-    /// <param name="email">Email filter string.</param>
-    /// <param name="role">Role filter string.</param>
-    /// <returns>The view containing filtered users.</returns>
-    public async Task<IActionResult> Index(string email, string role)
-    {
-        // Get all roles for the dropdown
-        ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-
-        var usersQuery = _userManager.Users.AsQueryable();
-
-        // Apply email filter if provided
-        if (!string.IsNullOrEmpty(email))
+        public AdminController(
+            ApplicationDbContext context,
+            IWebHostEnvironment env,
+            UserManager<AppUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            OwnerSettings ownerSettings)
         {
-            usersQuery = usersQuery.Where(u => u.Email.Contains(email));
+            _context = context;
+            _env = env;
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _ownerSettings = ownerSettings;
         }
 
-        // Apply role filter if provided
-        if (!string.IsNullOrEmpty(role))
+        /// <summary>
+        /// Displays a list of users with optional filtering and pagination.
+        /// </summary>
+        public async Task<IActionResult> Index(string searchString, int? pageNumber, int? pageSize)
         {
-            var usersInRole = await _userManager.GetUsersInRoleAsync(role);
-            var userIds = usersInRole.Select(u => u.Id);
-            usersQuery = usersQuery.Where(u => userIds.Contains(u.Id));
-        }
-
-        var users = await usersQuery.ToListAsync();
-
-        // Prepare role counts for display
-        var userRoles = new Dictionary<string, List<string>>();
-        foreach (var user in users)
-        {
-            var roles = await _userManager.GetRolesAsync(user);
-            userRoles[user.Id] = roles.ToList();
-        }
-        ViewBag.UserRoles = userRoles;
-
-        return View(users);
-    }
-
-    /// <summary>
-    /// Displays a list of all roles with their user counts.
-    /// </summary>
-    /// <returns>The view containing role information.</returns>
-    public async Task<IActionResult> Roles()
-    {
-        var roles = await _roleManager.Roles.ToListAsync();
-        var roleUserCounts = new Dictionary<string, int>();
-
-        // Get all user-role mappings in one query
-        var allUserRoles = await _context.UserRoles.ToListAsync();
-
-        // Group by roleId and count users
-        var roleGroups = allUserRoles.GroupBy(ur => ur.RoleId);
-
-        foreach (var role in roles)
-        {
-            var count = roleGroups.FirstOrDefault(g => g.Key == role.Id)?.Count() ?? 0;
-            roleUserCounts[role.Id] = count;
-        }
-
-        ViewBag.RoleUserCounts = roleUserCounts;
-        return View(roles);
-    }
-
-    /// <summary>
-    /// Displays details for a specific user.
-    /// </summary>
-    /// <param name="id">The user ID.</param>
-    /// <returns>The user details view or NotFound if user doesn't exist.</returns>
-    [Authorize(Roles = "Owner")]
-    public async Task<IActionResult> Details(string? id)
-    {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var appUser = await _context.Users
-            .FirstOrDefaultAsync(m => m.Id == id);
-        if (appUser == null)
-        {
-            return NotFound();
-        }
-
-        return View(appUser);
-    }
-
-    /// <summary>
-    /// Displays the user creation form.
-    /// </summary>
-    /// <returns>The user creation view.</returns>
-    [Authorize(Roles = "Owner")]
-    public async Task<IActionResult> Create()
-    {
-        ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-        return View();
-    }
-
-    /// <summary>
-    /// Handles user creation form submission.
-    /// </summary>
-    /// <param name="appUser">The user data.</param>
-    /// <param name="password">The user password.</param>
-    /// <param name="confirmPassword">The password confirmation.</param>
-    /// <param name="selectedRoles">List of roles to assign to the user.</param>
-    /// <returns>Redirects to user list on success or returns creation view with errors.</returns>
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Owner")]
-    public async Task<IActionResult> Create(
-        [Bind("UserName,Email,PhoneNumber")] AppUser appUser,
-        string password,
-        string confirmPassword,
-        List<string> selectedRoles)
-    {
-        if (password != confirmPassword)
-        {
-            ModelState.AddModelError("", "Passwords do not match");
+            int currentPageSize = pageSize ?? 10;
+            int currentPageNumber = pageNumber ?? 1;
+            
+            ViewBag.CurrentPageSize = currentPageSize;
+            ViewBag.AvailablePageSizes = new List<int> { 5, 10, 20, 50 };
+            ViewBag.CurrentFilter = searchString;
             ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-            return View(appUser);
-        }
-        appUser.UserName = appUser.Email;
-        if (ModelState.IsValid)
-        {
-            var result = await _userManager.CreateAsync(appUser, password);
-            if (result.Succeeded)
-            {
-                // Add selected roles
-                if (selectedRoles != null && selectedRoles.Any())
-                {
-                    var addRolesResult = await _userManager.AddToRolesAsync(appUser, selectedRoles);
-                    if (!addRolesResult.Succeeded)
-                    {
-                        // Handle role assignment errors
-                        foreach (var error in addRolesResult.Errors)
-                        {
-                            ModelState.AddModelError("", error.Description);
-                        }
-                        ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-                        return View(appUser);
-                    }
-                }
 
-                return RedirectToAction(nameof(Index));
+            var usersQuery = _userManager.Users.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                usersQuery = usersQuery.Where(u =>
+                    u.UserName.Contains(searchString) ||
+                    u.Email.Contains(searchString) ||
+                    u.PhoneNumber.Contains(searchString));
             }
 
-            // Handle user creation errors
-            foreach (var error in result.Errors)
+            var paginatedUsers = await PaginatedList<AppUser>.CreateAsync(
+                usersQuery.OrderBy(u => u.UserName).AsNoTracking(),
+                currentPageNumber,
+                currentPageSize);
+
+            // Prepare role counts for display
+            var userRoles = new Dictionary<string, List<string>>();
+            foreach (var user in paginatedUsers)
             {
-                ModelState.AddModelError("", error.Description);
+                var roles = await _userManager.GetRolesAsync(user);
+                userRoles[user.Id] = roles.ToList();
             }
+            ViewBag.UserRoles = userRoles;
+
+            return View(paginatedUsers);
         }
-        else
+
+        /// <summary>
+        /// Displays a list of all roles with pagination.
+        /// </summary>
+        public async Task<IActionResult> Roles(int? pageNumber, int? pageSize)
         {
-            if (_env.IsDevelopment())
+            int currentPageSize = pageSize ?? 10;
+            int currentPageNumber = pageNumber ?? 1;
+            
+            ViewBag.CurrentPageSize = currentPageSize;
+            ViewBag.AvailablePageSizes = new List<int> { 5, 10, 20, 50 };
+
+            var rolesQuery = _roleManager.Roles.AsQueryable();
+            var paginatedRoles = await PaginatedList<IdentityRole>.CreateAsync(
+                rolesQuery.OrderBy(r => r.Name).AsNoTracking(),
+                currentPageNumber,
+                currentPageSize);
+
+            // Get user counts for each role
+            var allUserRoles = await _context.UserRoles.ToListAsync();
+            var roleGroups = allUserRoles.GroupBy(ur => ur.RoleId);
+
+            var roleUserCounts = new Dictionary<string, int>();
+            foreach (var role in paginatedRoles)
             {
-                var errors = ModelState
-                    .Where(x => x.Value.Errors.Count > 0)
-                    .Select(x => new
-                    {
-                        Field = x.Key,
-                        Errors = x.Value.Errors.Select(e => e.ErrorMessage)
-                    })
-                    .ToList();
-
-                ViewData["ModelErrors"] = errors;
+                var count = roleGroups.FirstOrDefault(g => g.Key == role.Id)?.Count() ?? 0;
+                roleUserCounts[role.Id] = count;
             }
-        }
-        ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-        return View(appUser);
-    }
+            ViewBag.RoleUserCounts = roleUserCounts;
 
-    /// <summary>
-    /// Displays the user edit form.
-    /// </summary>
-    /// <param name="id">The user ID to edit.</param>
-    /// <returns>The edit view or NotFound if user doesn't exist.</returns>
-    [Authorize(Roles = "Owner")]
-    public async Task<IActionResult> Edit(string id)
-    {
-        if (id == null)
-        {
-            return NotFound();
+            return View(paginatedRoles);
         }
 
-        var user = await _userManager.FindByIdAsync(id);
-        if (user == null)
+        /// <summary>
+        /// Displays user details.
+        /// </summary>
+        [Authorize(Roles = "Owner")]
+        public async Task<IActionResult> Details(string? id)
         {
-            return NotFound();
-        }
+            if (id == null) return NotFound();
 
-        // Get all available roles
-        var allRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-        // Get user's current roles
-        var userRoles = await _userManager.GetRolesAsync(user);
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
 
-        ViewBag.AllRoles = allRoles;
-        ViewBag.UserRoles = userRoles;
-
-        return View(user);
-    }
-
-    /// <summary>
-    /// Handles user edit form submission.
-    /// </summary>
-    /// <param name="id">The user ID being edited.</param>
-    /// <param name="user">The updated user data.</param>
-    /// <param name="selectedRoles">List of roles to assign to the user.</param>
-    /// <returns>Redirects to user list on success or returns edit view with errors.</returns>
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Owner")]
-    public async Task<IActionResult> Edit(string id, [Bind("Id,UserName,Email,PhoneNumber")] AppUser user, List<string> selectedRoles)
-    {
-        if (id != user.Id)
-        {
-            return NotFound();
-        }
-
-        var existingUser = await _userManager.FindByIdAsync(id);
-        if (existingUser == null)
-        {
-            return NotFound();
-        }
-
-        if (existingUser.Email == _ownerSettings.OwnerEmail)
-        {
-            TempData["ErrorMessage"] = "The owner account cannot be modified.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        if (ModelState.IsValid)
-        {
-            try
-            {
-                existingUser.Email = user.Email;
-                existingUser.UserName = existingUser.Email;
-                existingUser.PhoneNumber = user.PhoneNumber;
-
-                // Update user details
-                var result = await _userManager.UpdateAsync(existingUser);
-                if (!result.Succeeded)
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError(string.Empty, error.Description);
-                    }
-                    ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-                    ViewBag.UserRoles = await _userManager.GetRolesAsync(existingUser);
-                    return View(user);
-                }
-
-                // Update roles
-                var currentRoles = await _userManager.GetRolesAsync(existingUser);
-                var rolesToAdd = selectedRoles?.Except(currentRoles) ?? Enumerable.Empty<string>();
-                var rolesToRemove = currentRoles.Except(selectedRoles ?? Enumerable.Empty<string>());
-
-                await _userManager.AddToRolesAsync(existingUser, rolesToAdd);
-                await _userManager.RemoveFromRolesAsync(existingUser, rolesToRemove);
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await AppUserExists(user.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-        }
-
-        ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-        ViewBag.UserRoles = await _userManager.GetRolesAsync(user);
-        return View(user);
-    }
-
-    /// <summary>
-    /// Displays the user deletion confirmation form.
-    /// </summary>
-    /// <param name="id">The user ID to delete.</param>
-    /// <returns>The deletion confirmation view or NotFound if user doesn't exist.</returns>
-    [Authorize(Roles = "Owner")]
-    public async Task<IActionResult> Delete(string? id)
-    {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var user = await _userManager.FindByIdAsync(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
-
-        var roles = await _userManager.GetRolesAsync(user);
-        ViewBag.UserRoles = roles;
-        return View(user);
-    }
-
-    /// <summary>
-    /// Handles user deletion confirmation.
-    /// </summary>
-    /// <param name="id">The user ID to delete.</param>
-    /// <returns>Redirects to user list or returns error view.</returns>
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Owner")]
-    public async Task<IActionResult> DeleteConfirmed(string id)
-    {
-        var user = await _userManager.FindByIdAsync(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
-
-        if (user.Email == _ownerSettings.OwnerEmail)
-        {
-            TempData["ErrorMessage"] = "The owner account cannot be deleted.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        var result = await _userManager.DeleteAsync(user);
-        if (!result.Succeeded)
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
             return View(user);
         }
 
-        TempData["SuccessMessage"] = "User deleted successfully.";
-        return RedirectToAction(nameof(Index));
-    }
-
-    private async Task<bool> AppUserExists(string id)
-    {
-        return await _userManager.FindByIdAsync(id) != null;
-    }
-
-    /// <summary>
-    /// Displays the role creation form.
-    /// </summary>
-    /// <returns>The role creation view.</returns>
-    [Authorize(Roles = "Owner")]
-    public IActionResult CreateRole()
-    {
-        return View();
-    }
-
-    /// <summary>
-    /// Handles role creation form submission.
-    /// </summary>
-    /// <param name="role">The role data to create.</param>
-    /// <returns>Redirects to role list on success or returns creation view with errors.</returns>
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Owner")]
-    public async Task<IActionResult> CreateRole([Bind("Name")] IdentityRole role)
-    {
-        if (ModelState.IsValid)
+        /// <summary>
+        /// Displays user creation form.
+        /// </summary>
+        [Authorize(Roles = "Owner")]
+        public async Task<IActionResult> Create()
         {
-            var result = await _roleManager.CreateAsync(role);
+            ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+            return View();
+        }
+
+        /// <summary>
+        /// Handles user creation.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Owner")]
+        public async Task<IActionResult> Create(
+            [Bind("UserName,Email,PhoneNumber")] AppUser user,
+            string password,
+            string confirmPassword,
+            List<string> selectedRoles)
+        {
+            if (password != confirmPassword)
+            {
+                ModelState.AddModelError("", "Passwords do not match");
+                ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+                return View(user);
+            }
+
+            user.UserName = user.Email;
+            if (ModelState.IsValid)
+            {
+                var result = await _userManager.CreateAsync(user, password);
+                if (result.Succeeded)
+                {
+                    if (selectedRoles != null && selectedRoles.Any())
+                    {
+                        await _userManager.AddToRolesAsync(user, selectedRoles);
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+            }
+            ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+            return View(user);
+        }
+
+        /// <summary>
+        /// Displays user edit form.
+        /// </summary>
+        [Authorize(Roles = "Owner")]
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (id == null) return NotFound();
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            if (user.Email == _ownerSettings.OwnerEmail)
+            {
+                TempData["ErrorMessage"] = "The owner account cannot be modified.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+            ViewBag.UserRoles = await _userManager.GetRolesAsync(user);
+
+            return View(user);
+        }
+
+        /// <summary>
+        /// Handles user updates.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Owner")]
+        public async Task<IActionResult> Edit(string id, [Bind("Id,UserName,Email,PhoneNumber")] AppUser user, List<string> selectedRoles)
+        {
+            if (id != user.Id) return NotFound();
+
+            var existingUser = await _userManager.FindByIdAsync(id);
+            if (existingUser == null) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                existingUser.Email = user.Email;
+                existingUser.UserName = user.Email;
+                existingUser.PhoneNumber = user.PhoneNumber;
+
+                var result = await _userManager.UpdateAsync(existingUser);
+                if (result.Succeeded)
+                {
+                    var currentRoles = await _userManager.GetRolesAsync(existingUser);
+                    var rolesToAdd = selectedRoles?.Except(currentRoles) ?? Enumerable.Empty<string>();
+                    var rolesToRemove = currentRoles.Except(selectedRoles ?? Enumerable.Empty<string>());
+
+                    await _userManager.AddToRolesAsync(existingUser, rolesToAdd);
+                    await _userManager.RemoveFromRolesAsync(existingUser, rolesToRemove);
+
+                    return RedirectToAction(nameof(Index));
+                }
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+            }
+
+            ViewBag.AllRoles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+            ViewBag.UserRoles = await _userManager.GetRolesAsync(existingUser);
+            return View(user);
+        }
+
+        /// <summary>
+        /// Displays user deletion confirmation.
+        /// </summary>
+        [Authorize(Roles = "Owner")]
+        public async Task<IActionResult> Delete(string? id)
+        {
+            if (id == null) return NotFound();
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            if (user.Email == _ownerSettings.OwnerEmail)
+            {
+                TempData["ErrorMessage"] = "The owner account cannot be deleted.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(user);
+        }
+
+        /// <summary>
+        /// Handles user deletion.
+        /// </summary>
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Owner")]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            var result = await _userManager.DeleteAsync(user);
             if (result.Succeeded)
             {
-                TempData["SuccessMessage"] = $"Role '{role.Name}' created successfully.";
+                TempData["SuccessMessage"] = "User deleted successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Error deleting user.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        /// <summary>
+        /// Displays role creation form.
+        /// </summary>
+        [Authorize(Roles = "Owner")]
+        public IActionResult CreateRole()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Handles role creation.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Owner")]
+        public async Task<IActionResult> CreateRole([Bind("Name")] IdentityRole role)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _roleManager.CreateAsync(role);
+                if (result.Succeeded)
+                {
+                    TempData["SuccessMessage"] = $"Role '{role.Name}' created successfully.";
+                    return RedirectToAction(nameof(Roles));
+                }
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+            }
+            return View(role);
+        }
+
+        /// <summary>
+        /// Displays role deletion confirmation.
+        /// </summary>
+        [Authorize(Roles = "Owner")]
+        public async Task<IActionResult> DeleteRole(string id)
+        {
+            if (id == null) return NotFound();
+
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null) return NotFound();
+
+            var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name);
+            ViewBag.UserCount = usersInRole.Count;
+
+            return View(role);
+        }
+
+        /// <summary>
+        /// Handles role deletion.
+        /// </summary>
+        [HttpPost, ActionName("DeleteRole")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Owner")]
+        public async Task<IActionResult> DeleteRoleConfirmed(string id)
+        {
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null) return NotFound();
+
+            var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name);
+            if (usersInRole.Count > 0)
+            {
+                TempData["ErrorMessage"] = $"Cannot delete role '{role.Name}' because it has {usersInRole.Count} assigned users.";
                 return RedirectToAction(nameof(Roles));
             }
-            foreach (var error in result.Errors)
+
+            var result = await _roleManager.DeleteAsync(role);
+            if (result.Succeeded)
             {
-                ModelState.AddModelError(string.Empty, error.Description);
+                TempData["SuccessMessage"] = $"Role '{role.Name}' deleted successfully.";
             }
-        }
-        return View(role);
-    }
+            else
+            {
+                TempData["ErrorMessage"] = $"Failed to delete role '{role.Name}'.";
+            }
 
-    /// <summary>
-    /// Displays the role deletion confirmation form.
-    /// </summary>
-    /// <param name="id">The role ID to delete.</param>
-    /// <returns>The deletion confirmation view or NotFound if role doesn't exist.</returns>
-    [Authorize(Roles = "Owner")]
-    public async Task<IActionResult> DeleteRole(string id)
-    {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var role = await _roleManager.FindByIdAsync(id);
-        if (role == null)
-        {
-            return NotFound();
-        }
-
-        // Check if any users are assigned to this role
-        var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name);
-        ViewBag.UserCount = usersInRole.Count;
-
-        return View(role);
-    }
-
-    /// <summary>
-    /// Handles role deletion confirmation.
-    /// </summary>
-    /// <param name="id">The role ID to delete.</param>
-    /// <returns>Redirects to role list or returns error view.</returns>
-    [HttpPost, ActionName("DeleteRole")]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Owner")]
-    public async Task<IActionResult> DeleteRoleConfirmed(string id)
-    {
-        var role = await _roleManager.FindByIdAsync(id);
-        if (role == null)
-        {
-            return NotFound();
-        }
-
-        var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name);
-        if (usersInRole.Count > 0)
-        {
-            TempData["ErrorMessage"] = $"Cannot delete role '{role.Name}' because it has {usersInRole.Count} assigned users.";
             return RedirectToAction(nameof(Roles));
         }
 
-        var result = await _roleManager.DeleteAsync(role);
-        if (result.Succeeded)
+        private async Task<bool> AppUserExists(string id)
         {
-            TempData["SuccessMessage"] = $"Role '{role.Name}' deleted successfully.";
+            return await _userManager.FindByIdAsync(id) != null;
         }
-        else
-        {
-            TempData["ErrorMessage"] = $"Failed to delete role '{role.Name}'.";
-        }
-
-        return RedirectToAction(nameof(Roles));
     }
 }

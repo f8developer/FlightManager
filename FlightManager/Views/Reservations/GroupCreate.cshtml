@@ -1,0 +1,264 @@
+﻿@using FlightManager.Data.Models
+@model FlightManager.Data.Models.GroupReservationViewModel
+
+@{
+    ViewData["Title"] = "Create Group Reservation";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Create Group Reservation</h4>
+        </div>
+        <div class="card-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-action="GroupCreate" id="groupReservationForm">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <h5 class="text-primary">Flight Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="FlightId" class="control-label"></label>
+                            <select asp-for="FlightId" class="form-control" asp-items="ViewBag.FlightList" required>
+                                <option value="">-- Select a Flight --</option>
+                            </select>
+                            <span asp-validation-for="FlightId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Nationality" class="control-label"></label>
+                            <input asp-for="Nationality" class="form-control" required />
+                            <span asp-validation-for="Nationality" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="TicketType" class="control-label"></label>
+                            <select asp-for="TicketType" class="form-control" asp-items="Html.GetEnumSelectList<TicketType>()" required></select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Email" class="control-label"></label>
+                            <input asp-for="Email" type="email" class="form-control" />
+                            <small class="form-text text-muted">We'll send the reservation confirmation to this address</small>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <h5 class="text-primary">Passengers</h5>
+                <div id="passengersContainer">
+                    @for (int i = 0; i < Model.Passengers.Count; i++)
+                    {
+                        <div class="passenger-group mb-4 p-3 border rounded">
+                            <h6>Passenger @(i + 1)</h6>
+                            <button type="button" class="btn btn-danger btn-sm float-right remove-passenger">Remove</button>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label asp-for="Passengers[i].UserName" class="control-label"></label>
+                                        <input asp-for="Passengers[i].UserName" class="form-control" required />
+                                        <span asp-validation-for="Passengers[i].UserName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label asp-for="Passengers[i].FirstName" class="control-label"></label>
+                                        <input asp-for="Passengers[i].FirstName" class="form-control" required />
+                                        <span asp-validation-for="Passengers[i].FirstName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label asp-for="Passengers[i].MiddleName" class="control-label"></label>
+                                        <input asp-for="Passengers[i].MiddleName" class="form-control" />
+                                        <span asp-validation-for="Passengers[i].MiddleName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label asp-for="Passengers[i].LastName" class="control-label"></label>
+                                        <input asp-for="Passengers[i].LastName" class="form-control" required />
+                                        <span asp-validation-for="Passengers[i].LastName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Passengers[i].EGN" class="control-label"></label>
+                                    <input asp-for="Passengers[i].EGN" class="form-control"
+                                           pattern="\d{10}"
+                                           title="EGN must be exactly 10 digits"
+                                           required />
+                                    <small class="form-text text-muted">10-digit number</small>
+                                    <span asp-validation-for="Passengers[i].EGN" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label asp-for="Passengers[i].Address" class="control-label"></label>
+                                        <input asp-for="Passengers[i].Address" class="form-control" required />
+                                        <span asp-validation-for="Passengers[i].Address" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Passengers[i].PhoneNumber" class="control-label"></label>
+                                        <input asp-for="Passengers[i].PhoneNumber" class="form-control" required />
+                                        <span asp-validation-for="Passengers[i].PhoneNumber" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <button type="button" id="addPassenger" class="btn btn-secondary mb-3">
+                    <i class="fas fa-plus"></i> Add Passenger
+                </button>
+
+                <div class="form-group mt-3 text-center">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Create Group Reservation
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="mt-3 text-center">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            // Add passenger
+            $('#addPassenger').click(function() {
+                var index = $('#passengersContainer .passenger-group').length;
+                var html = `
+                    <div class="passenger-group mb-4 p-3 border rounded">
+                        <h6>Passenger ${index + 1}</h6>
+                        <button type="button" class="btn btn-danger btn-sm float-right remove-passenger">Remove</button>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Passengers_${index}__UserName" class="control-label">UserName</label>
+                                    <input type="text" id="Passengers_${index}__UserName" name="Passengers[${index}].UserName" class="form-control" required />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="Passengers[${index}].UserName" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Passengers_${index}__FirstName" class="control-label">First Name</label>
+                                    <input type="text" id="Passengers_${index}__FirstName" name="Passengers[${index}].FirstName" class="form-control" required />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="Passengers[${index}].FirstName" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Passengers_${index}__MiddleName" class="control-label">Middle Name</label>
+                                    <input type="text" id="Passengers_${index}__MiddleName" name="Passengers[${index}].MiddleName" class="form-control" />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="Passengers[${index}].MiddleName" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Passengers_${index}__LastName" class="control-label">Last Name</label>
+                                    <input type="text" id="Passengers_${index}__LastName" name="Passengers[${index}].LastName" class="form-control" required />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="Passengers[${index}].LastName" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Passengers_${index}__EGN" class="control-label">EGN</label>
+                                    <input type="text" id="Passengers_${index}__EGN" name="Passengers[${index}].EGN" class="form-control" required />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="Passengers[${index}].EGN" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="Passengers_${index}__Address" class="control-label">Address</label>
+                                    <input type="text" id="Passengers_${index}__Address" name="Passengers[${index}].Address" class="form-control" required />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="Passengers[${index}].Address" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Passengers_${index}__PhoneNumber" class="control-label">Phone Number</label>
+                                    <input type="text" id="Passengers_${index}__PhoneNumber" name="Passengers[${index}].PhoneNumber" class="form-control" required />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="Passengers[${index}].PhoneNumber" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $('#passengersContainer').append(html);
+            });
+
+            // Remove passenger
+            $(document).on('click', '.remove-passenger', function() {
+                if ($('#passengersContainer .passenger-group').length > 1) {
+                    $(this).closest('.passenger-group').remove();
+                    // Reindex all passengers
+                    $('#passengersContainer .passenger-group').each(function(index) {
+                        $(this).find('h6').text(`Passenger ${index + 1}`);
+                    });
+                } else {
+                    alert('At least one passenger is required.');
+                }
+            });
+
+            // Real-time EGN validation
+            $(document).on('blur', 'input[name$="].EGN"]', function() {
+                var egn = $(this).val();
+                var flightId = $('#FlightId').val();
+                var errorSpan = $(this).next('.text-danger');
+
+                // Clear previous errors
+                if (errorSpan.length) {
+                    errorSpan.remove();
+                }
+
+                // Validate EGN is exactly 10 digits
+                if (egn && (!/^\d{10}$/.test(egn))) {
+                    $(this).after('<span class="text-danger">EGN must be exactly 10 digits.</span>');
+                    return;
+                }
+
+                // Check for existing reservation (optional)
+                if (egn && flightId) {
+                    $.get('/Reservations/CheckReservation', { egn: egn, flightId: flightId }, function(data) {
+                        if (data.exists) {
+                            $(this).after('<span class="text-danger">This user already has a reservation for this flight.</span>');
+                        }
+                    }.bind(this));
+                }
+            });
+        });
+    </script>
+}

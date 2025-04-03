@@ -47,6 +47,9 @@ public class ReservationUser
     [Display(Name = "Phone Number")]
     public required string PhoneNumber { get; set; }
 
+    [EmailAddress]
+    public string? Email { get; set; }
+
     /// <summary>
     /// Gets or sets the collection of reservations made by this user.
     /// </summary>

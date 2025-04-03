@@ -1,0 +1,322 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Flight Reservation #{MainReservationId}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: #212529;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .email-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .email-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .email-header::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: 40%;
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 L0,100 Z" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></svg>');
+                background-size: 20px 20px;
+                opacity: 0.5;
+            }
+
+        .email-content {
+            padding: 2rem;
+        }
+
+        .alert-banner {
+            background-color: #ffc107;
+            color: #212529;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #ffc107;
+            color: #212529;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            margin: 0.5rem 0;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+            .btn:hover {
+                background-color: #e0a800;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                color: #212529;
+            }
+
+        .btn-secondary {
+            background-color: #ffe082;
+            color: #212529;
+        }
+
+            .btn-secondary:hover {
+                background-color: #ffd54f;
+                color: #212529;
+            }
+
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #6c757d;
+            background-color: #f8f9fa;
+            font-size: 0.875rem;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-item strong {
+            display: block;
+            color: #6c757d;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .info-item span {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 50rem;
+        }
+
+        .badge-primary {
+            background-color: #1e3c72;
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .passenger-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+            .passenger-table th {
+                background-color: #f8f9fa;
+                padding: 0.75rem;
+                text-align: left;
+                font-weight: 600;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+            .passenger-table td {
+                padding: 0.75rem;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+        .summary-box {
+            background-color: #e7f1ff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .email-header {
+                padding: 1.5rem 1rem;
+            }
+
+            .email-content {
+                padding: 1.5rem 1rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .passenger-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h1 style="margin: 0; font-size: 1.75rem; position: relative; z-index: 1;">Group Flight Reservation</h1>
+            <p style="margin: 0.5rem 0 0; font-size: 1.1rem; position: relative; z-index: 1;">Main Reservation #{MainReservationId} • {PassengerCount} Passengers</p>
+        </div>
+
+        <div class="email-content">
+            <div class="alert-banner">
+                <h3 style="margin: 0; font-size: 1.1rem;">Action Required: Confirm Your Group Reservation</h3>
+                <p style="margin: 0.5rem 0 0; font-size: 0.9rem;">Expires on {ExpiresAt}</p>
+            </div>
+
+            <p>Dear Group Coordinator,</p>
+            <p>Thank you for choosing FlightManager for your group travel. Please review the details below and confirm all {PassengerCount} bookings with a single click.</p>
+
+            <div style="text-align: center; margin: 2rem 0;">
+                <a href="{ConfirmationUrl}" class="btn" style="color: #212529;">Confirm All Reservations</a>
+                <p style="font-size: 0.875rem; color: #6c757d; margin-top: 0.5rem;">
+                    <small>Or copy this link: <br><code style="word-break: break-all; background-color: #f1f3f5; padding: 0.2rem 0.4rem; border-radius: 0.25rem;">{ConfirmationUrl}</code></small>
+                </p>
+            </div>
+
+            <div class="summary-box">
+                <h2 style="margin-top: 0; font-size: 1.25rem;">Group Summary</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Main Reservation ID</strong>
+                        <span>#{MainReservationId}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Status</strong>
+                        <span class="badge badge-warning">Pending Confirmation</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Total Passengers</strong>
+                        <span>{PassengerCount}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Ticket Type</strong>
+                        <span class="badge badge-primary">{TicketType}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 style="margin: 0; font-size: 1.25rem;">Flight Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <strong>Flight Number</strong>
+                            <span>{FlightNumber}</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Route</strong>
+                            <span>{FromLocation} → {ToLocation}</span>
+                        </div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <strong>Departure</strong>
+                            <span>{DepartureTime}</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Arrival</strong>
+                            <span>{ArrivalTime}</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Duration</strong>
+                            <span>{Duration}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 style="margin: 0; font-size: 1.25rem;">Passenger List</h2>
+                </div>
+                <div class="card-body">
+                    <table class="passenger-table">
+                        <thead>
+                            <tr>
+                                <th>Passenger Name</th>
+                                <th>Reservation ID</th>
+                                <th>Ticket Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {PassengerRows}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: center;">
+                <a href="{DetailsUrl}" class="btn btn-secondary">View Group Reservation Details</a>
+            </div>
+
+            <p style="margin-top: 2rem; color: #6c757d; font-size: 0.875rem;">
+                <strong>Note:</strong> All reservations will be automatically cancelled if not confirmed within 48 hours.
+            </p>
+        </div>
+
+        <div class="footer">
+            <p style="margin: 0;">© {CurrentYear} FlightManager. All rights reserved.</p>
+            <p style="margin: 0.25rem 0 0; font-size: 0.8rem;">
+                This is an automated message. Please do not reply to this email.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

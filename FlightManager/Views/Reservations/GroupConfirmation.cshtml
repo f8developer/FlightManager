@@ -1,0 +1,73 @@
+﻿@model List<FlightManager.Data.Models.Reservation>
+@{
+    ViewData["Title"] = "Group Reservation Confirmation";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">
+                <i class="fas fa-check-circle"></i> Group Reservation Successful
+            </h4>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-success">
+                <h4><i class="fas fa-envelope"></i> Confirmation Sent</h4>
+                <p>A confirmation email has been sent with all reservation details.</p>
+            </div>
+
+            <h5 class="text-primary">Reservation Summary</h5>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Reservation ID</th>
+                            <th>Passenger</th>
+                            <th>Flight</th>
+                            <th>Ticket Type</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var reservation in Model)
+                        {
+                            <tr>
+                                <td>@reservation.Id</td>
+                                <td>@reservation.ReservationUser?.FirstName @reservation.ReservationUser?.MiddleName @reservation.ReservationUser?.LastName</td>
+                                <td>
+                                    @reservation.Flight?.FromLocation → @reservation.Flight?.ToLocation<br>
+                                    <small>@reservation.Flight?.DepartureTime.ToString("g")</small>
+                                </td>
+                                <td>@reservation.TicketType</td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@reservation.Id" class="btn btn-sm btn-info" title="View Details">
+                                        <i class="fas fa-eye"></i> Details
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4">
+                <a asp-action="Index" class="btn btn-primary">
+                    <i class="fas fa-list"></i> View All Reservations
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+    </style>
+}

@@ -33,13 +33,114 @@ public class FlightsController : Controller
     /// </summary>
     /// <returns>The flights list view.</returns>
     [AllowAnonymous]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(
+        string fromLocation,
+        string toLocation,
+        string departureDate,
+        string arrivalDate,
+        int? pageNumber,
+        int? pageSize)
     {
-        var flights = await _context.Flights
+        // Set default page size if not specified
+        int currentPageSize = pageSize ?? 10;
+        int currentPageNumber = pageNumber ?? 1;
+
+        ViewBag.CurrentPageSize = currentPageSize;
+        ViewBag.AvailablePageSizes = new List<int> { 5, 10, 20, 50 };
+
+        // Start with all flights including reservations
+        var flightsQuery = _context.Flights
             .Include(f => f.Reservations)
+            .AsQueryable();
+
+        // Apply location filters
+        if (!string.IsNullOrEmpty(fromLocation))
+        {
+            flightsQuery = flightsQuery.Where(f => f.FromLocation.Contains(fromLocation));
+        }
+
+        if (!string.IsNullOrEmpty(toLocation))
+        {
+            flightsQuery = flightsQuery.Where(f => f.ToLocation.Contains(toLocation));
+        }
+
+        DateTime? startDate = null;
+        DateTime? endDate = null;
+
+        if (!string.IsNullOrEmpty(departureDate) && DateTime.TryParse(departureDate, out var parsedStartDate))
+        {
+            startDate = parsedStartDate.Date;
+        }
+
+        if (!string.IsNullOrEmpty(arrivalDate) && DateTime.TryParse(arrivalDate, out var parsedEndDate))
+        {
+            endDate = parsedEndDate.Date;
+        }
+
+        PaginatedList<Flight> paginatedFlights;
+
+        if (startDate.HasValue || endDate.HasValue)
+        {
+            // Filter flights that overlap with the selected date range
+            flightsQuery = flightsQuery.Where(f =>
+                (!startDate.HasValue || f.DepartureTime.Date <= endDate) &&
+                (!endDate.HasValue || f.ArrivalTime.Date >= startDate));
+
+            // Get filtered flights
+            var filteredFlights = await flightsQuery.AsNoTracking().ToListAsync();
+
+            // Calculate relevance scores for ordering
+            var scoredFlights = filteredFlights
+                .Select(f => new
+                {
+                    Flight = f,
+                    DepartureScore = startDate.HasValue
+                        ? Math.Abs((f.DepartureTime.Date - startDate.Value).TotalDays)
+                        : 0,
+                    ArrivalScore = endDate.HasValue
+                        ? Math.Abs((f.ArrivalTime.Date - endDate.Value).TotalDays)
+                        : 0,
+                    // Additional score for flights that fully fit within the range
+                    FullMatchBonus = (startDate.HasValue && endDate.HasValue &&
+                                    f.DepartureTime.Date >= startDate.Value &&
+                                    f.ArrivalTime.Date <= endDate.Value) ? -1000 : 0
+                })
+                .OrderBy(x => x.FullMatchBonus + x.DepartureScore + x.ArrivalScore)
+                .Select(x => x.Flight);
+
+            // Create paginated list
+            paginatedFlights = PaginatedList<Flight>.CreateFromEnumerable(
+                scoredFlights,
+                currentPageNumber,
+                currentPageSize,
+                filteredFlights.Count);
+        }
+        else
+        {
+            // Default ordering by departure time if no dates are provided
+            flightsQuery = flightsQuery.OrderBy(f => f.DepartureTime);
+            paginatedFlights = await PaginatedList<Flight>.CreateAsync(
+                flightsQuery.AsNoTracking(),
+                currentPageNumber,
+                currentPageSize);
+        }
+
+        return View(paginatedFlights);
+    }
+
+    [AllowAnonymous]
+    public async Task<IActionResult> GetLocationSuggestions(string term, bool isDeparture)
+    {
+        var locations = await _context.Flights
+            .Where(f => isDeparture
+                ? f.FromLocation.Contains(term)
+                : f.ToLocation.Contains(term))
+            .Select(f => isDeparture ? f.FromLocation : f.ToLocation)
+            .Distinct()
+            .Take(10)
             .ToListAsync();
 
-        return View(flights);
+        return Json(locations);
     }
 
     /// <summary>
@@ -57,6 +158,7 @@ public class FlightsController : Controller
 
         var flight = await _context.Flights
             .Include(f => f.Reservations)
+                .ThenInclude(r => r.ReservationUser)
             .FirstOrDefaultAsync(m => m.Id == id);
         if (flight == null)
         {
@@ -64,16 +166,6 @@ public class FlightsController : Controller
         }
 
         return View(flight);
-    }
-
-    /// <summary>
-    /// Displays the flight creation form.
-    /// </summary>
-    /// <returns>The flight creation view.</returns>
-    [Authorize(Roles = "Admin")]
-    public IActionResult Create()
-    {
-        return View(); // Ensure a new instance is passed
     }
 
     /// <summary>
@@ -322,7 +414,7 @@ public class FlightsController : Controller
     /// <param name="id">The flight ID.</param>
     /// <returns>The passengers list view or NotFound if flight doesn't exist.</returns>
     [Authorize(Roles = "Admin,Employee")]
-    public async Task<IActionResult> Passengers(int id)
+    public async Task<IActionResult> Passengers(int id, int pageNumber = 1, int pageSize = 5)
     {
         var flight = await _context.Flights
             .Include(f => f.Reservations)
@@ -334,9 +426,31 @@ public class FlightsController : Controller
             return NotFound();
         }
 
-        return View(flight);
-    }
+        // Convert to list first since we're working with in-memory collections
+        var reservations = flight.Reservations
+            .OrderBy(r => r.TicketType)
+            .ThenBy(r => r.IsConfirmed)
+            .ThenBy(r => r.ReservationUser.UserName)
+            .ToList();
 
+        // Create the paginated list
+        var paginatedList = PaginatedList<Reservation>.CreateFromEnumerable(
+            reservations,
+            pageNumber,
+            pageSize,
+            reservations.Count);
+
+        // Create a view model that contains both the flight and paginated reservations
+        var viewModel = new FlightPassengersViewModel
+        {
+            Flight = flight,
+            PaginatedReservations  = paginatedList
+        };
+
+        ViewBag.AvailablePageSizes = new[] { 5, 10, 25, 50, 100 };
+
+        return View(viewModel);
+    }
     private bool FlightExists(int id)
     {
         return _context.Flights.Any(e => e.Id == id);

@@ -1,86 +1,124 @@
-﻿using brevo_csharp.Api;
+﻿using System.ComponentModel.DataAnnotations;
+using brevo_csharp.Api;
 using brevo_csharp.Model;
 using System.Text.Json;
+using brevo_csharp.Client;
+using Microsoft.Extensions.Logging;
 
 namespace FlightManager.EmailService;
 
 public class BrevoEmailService
 {
+    private readonly ILogger<BrevoEmailService> _logger;
     private readonly string _apiKey;
     private readonly string _senderEmail;
     private readonly string _senderName;
 
-    // Credentials class for JSON deserialization
-    private class AppCredentials
+    public BrevoEmailService(ILogger<BrevoEmailService> logger, string credentialsPath = "credentials.json")
     {
-        public string BrevoApiKey { get; set; }
-        public string SenderEmail { get; set; }
-        public string SenderName { get; set; }
-    }
-
-    // Constructor loads credentials from JSON file
-    public BrevoEmailService(string credentialsPath = "credentials.json")
-    {
+        _logger = logger;
+        
         try
         {
+            if (!File.Exists(credentialsPath))
+            {
+                throw new FileNotFoundException(
+                    $"Email credentials file not found at: {Path.GetFullPath(credentialsPath)}");
+            }
+
             var credentials = JsonSerializer.Deserialize<AppCredentials>(
                 File.ReadAllText(credentialsPath));
 
-            if (credentials == null)
+            if (credentials == null || 
+                string.IsNullOrEmpty(credentials.BrevoApiKey) ||
+                string.IsNullOrEmpty(credentials.SenderEmail))
             {
-                throw new Exception("Failed to load credentials from JSON");
+                throw new Exception("Invalid credentials format in JSON file");
             }
 
             _apiKey = credentials.BrevoApiKey;
             _senderEmail = credentials.SenderEmail;
-            _senderName = credentials.SenderName;
+            _senderName = credentials.SenderName ?? "FlightManager";
+
+            _logger.LogInformation("Brevo email service initialized successfully");
         }
         catch (Exception ex)
         {
-            throw new Exception($"Error loading credentials: {ex.Message}");
+            _logger.LogCritical(ex, "Failed to initialize Brevo email service");
+            throw;
         }
     }
 
-    // Main email sending function
-    public string SendEmail(
+        public string SendEmail(
         string subject,
         string htmlContent,
         string recipientEmail,
         string recipientName = null,
         string textContent = null)
     {
+        // Validation
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            throw new InvalidOperationException("API key not configured");
+        
+        if (!new EmailAddressAttribute().IsValid(recipientEmail))
+            throw new ArgumentException($"Invalid recipient email: {recipientEmail}");
+
+        if (string.IsNullOrWhiteSpace(htmlContent))
+            throw new ArgumentException("Email content cannot be empty");
+
         try
         {
+            // Sanitize inputs
+            var cleanSubject = subject.Replace("\"", "\\\"");
+            var cleanRecipient = recipientEmail.Trim();
+
             // Configure API
-            brevo_csharp.Client.Configuration.Default.ApiKey.Clear();
-            brevo_csharp.Client.Configuration.Default.ApiKey.Add("api-key", _apiKey);
+            var config = new Configuration()
+            {
+                ApiKey = new Dictionary<string, string> { { "api-key", _apiKey } }
+            };
 
             // Create email
             var email = new SendSmtpEmail(
                 sender: new SendSmtpEmailSender(_senderName, _senderEmail),
-                to: new System.Collections.Generic.List<SendSmtpEmailTo>
+                to: new List<SendSmtpEmailTo>
                 {
-                    new SendSmtpEmailTo(recipientEmail, recipientName)
+                    new SendSmtpEmailTo(cleanRecipient, recipientName?.Trim())
                 },
-                subject: subject,
+                subject: cleanSubject,
                 htmlContent: htmlContent,
                 textContent: textContent ?? ConvertHtmlToPlainText(htmlContent)
             );
 
             // Send email
-            var apiInstance = new TransactionalEmailsApi();
+            var apiInstance = new TransactionalEmailsApi(config);
             var result = apiInstance.SendTransacEmail(email);
+            
             return result.MessageId;
         }
         catch (Exception ex)
         {
-            throw new Exception($"Error sending email: {ex.Message}");
+            _logger.LogError(ex, "Email sending failed to {Recipient}", recipientEmail);
+            throw new Exception($"Failed to send email: {ex.Message}", ex);
+        }
+    }
+        
+    private string ConvertHtmlToPlainText(string html)
+    {
+        try
+        {
+            return System.Text.RegularExpressions.Regex.Replace(html, "<[^>]*>", "");
+        }
+        catch
+        {
+            return "Please view this email in HTML format";
         }
     }
 
-    // Helper method to convert HTML to plain text (simplistic version)
-    private string ConvertHtmlToPlainText(string html)
+    private class AppCredentials
     {
-        return System.Text.RegularExpressions.Regex.Replace(html, "<[^>]*>", "");
+        public string BrevoApiKey { get; set; }
+        public string SenderEmail { get; set; }
+        public string SenderName { get; set; }
     }
 }

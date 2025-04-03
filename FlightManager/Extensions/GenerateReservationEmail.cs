@@ -1,78 +1,122 @@
-﻿using FlightManager.Data.Models;
+﻿using System.Globalization;
+using FlightManager.Data.Models;
+using System.Text;
+using FlightManager.Extensions.Services;
 
 namespace FlightManager.Extensions
 {
-    public class GenerateReservationEmail
+    public static class GenerateReservationEmail
     {
-        public static string ReservationEmail(Reservation reservation, Flight flight, ReservationUser user)
+        public static string ReservationEmail(
+            Reservation reservation,
+            Flight flight,
+            ReservationUser user,
+            string confirmationUrl,
+            string detailsUrl,
+            EmailTemplateService templateService)
         {
             var duration = flight.ArrivalTime - flight.DepartureTime;
+            var formattedDuration = FormatDuration(duration);
+            var expiresAt = DateTime.UtcNow.AddDays(2).ToString("f", CultureInfo.InvariantCulture);
+            var ticketType = reservation.TicketType == TicketType.Business ? "Business Class" : "Economy Class";
 
-            return $@"
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        body {{ font-family: Arial, sans-serif; line-height: 1.6; }}
-        .header {{ background-color: #007bff; color: white; padding: 20px; text-align: center; }}
-        .content {{ padding: 20px; }}
-        .card {{ border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; }}
-        .card-header {{ background-color: #f8f9fa; padding: 10px 15px; border-bottom: 1px solid #ddd; }}
-        .card-body {{ padding: 15px; }}
-        .footer {{ text-align: center; padding: 20px; font-size: 0.9em; color: #6c757d; }}
-        .reservation-id {{ font-size: 2em; color: #dc3545; text-align: center; margin: 20px 0; }}
-    </style>
-</head>
-<body>
-    <div class='header'>
-        <h1>Flight Reservation Confirmation</h1>
-    </div>
-    
-    <div class='content'>
-        <p>Dear {user.UserName},</p>
-        <p>Your flight reservation has been successfully confirmed. Below are your reservation details:</p>
-        
-        <div class='card'>
-            <div class='card-header'>
-                <h3>Passenger Information</h3>
-            </div>
-            <div class='card-body'>
-                <p><strong>Name:</strong> {user.UserName}</p>
-                <p><strong>EGN:</strong> {user.EGN}</p>
-                <p><strong>Phone:</strong> {user.PhoneNumber}</p>
-                <p><strong>Nationality:</strong> {reservation.Nationality}</p>
-                <p><strong>Ticket Type:</strong> {reservation.TicketType}</p>
-            </div>
-        </div>
-        
-        <div class='card'>
-            <div class='card-header'>
-                <h3>Flight Information</h3>
-            </div>
-            <div class='card-body'>
-                <p><strong>Flight Number:</strong> {flight.AircraftNumber}</p>
-                <p><strong>Route:</strong> {flight.FromLocation} → {flight.ToLocation}</p>
-                <p><strong>Departure:</strong> {flight.DepartureTime.ToString("g")}</p>
-                <p><strong>Arrival:</strong> {flight.ArrivalTime.ToString("g")}</p>
-                <p><strong>Duration:</strong> {duration.ToString(@"hh\:mm")}</p>
-                <p><strong>Aircraft Type:</strong> {flight.AircraftType}</p>
-            </div>
-        </div>
-        
-        <div class='reservation-id'>
-            <strong>Reservation ID:</strong> {reservation.ReservationUserId}
-        </div>
-        
-        <p>Please keep this reservation ID safe as you'll need it to manage your booking.</p>
-    </div>
-    
-    <div class='footer'>
-        <p>Thank you for choosing our service!</p>
-        <p>If you have any questions, please contact our customer support.</p>
-    </div>
-</body>
-</html>
-";
+            var replacements = new Dictionary<string, string>
+            {
+                {"ReservationId", reservation.Id.ToString()},
+                {"FirstName", user.FirstName ?? "Passenger"},
+                {"LastName", user.LastName ?? string.Empty},
+                {"Nationality", reservation.Nationality ?? "Not specified"},
+                {"TicketType", ticketType},
+                {"FlightNumber", flight.AircraftNumber},
+                {"FromLocation", flight.FromLocation},
+                {"ToLocation", flight.ToLocation},
+                {"DepartureTime", flight.DepartureTime.ToString("f", CultureInfo.InvariantCulture)},
+                {"ArrivalTime", flight.ArrivalTime.ToString("f", CultureInfo.InvariantCulture)},
+                {"Duration", formattedDuration},
+                {"ConfirmationUrl", confirmationUrl},
+                {"DetailsUrl", detailsUrl},
+                {"ExpiresAt", expiresAt},
+                {"CurrentYear", DateTime.Now.Year.ToString()}
+            };
+
+            return templateService.GetTemplate("ReservationConfirmation.html", replacements);
+        }
+
+        public static string GroupReservationEmail(
+            List<Reservation> reservations,
+            Flight flight,
+            List<PassengerViewModel> passengers,
+            string confirmationUrl,
+            string detailsUrl,
+            EmailTemplateService templateService)
+        {
+            if (reservations == null || !reservations.Any())
+                throw new ArgumentException("Reservations list cannot be empty", nameof(reservations));
+
+            if (passengers == null || !passengers.Any())
+                throw new ArgumentException("Passengers list cannot be empty", nameof(passengers));
+
+            if (reservations.Count != passengers.Count)
+                throw new ArgumentException("Reservations and passengers counts must match");
+
+            var duration = flight.ArrivalTime - flight.DepartureTime;
+            var formattedDuration = FormatDuration(duration);
+            var expiresAt = DateTime.UtcNow.AddDays(2).ToString("f", CultureInfo.InvariantCulture);
+            var mainReservation = reservations.First();
+            var ticketType = mainReservation.TicketType == TicketType.Business ? "Business Class" : "Economy Class";
+
+            // Generate passenger rows with status indication
+            var passengerRows = new StringBuilder();
+            foreach (var (passenger, i) in passengers.Select((p, i) => (p, i)))
+            {
+                var reservation = reservations[i];
+                var statusBadge = reservation.IsConfirmed
+                    ? "<span class='badge bg-success'>Confirmed</span>"
+                    : $"<span class='badge bg-warning'>Pending (<span class='countdown' data-expiry='{reservation.CreatedAt.AddHours(48):O}'></span>)</span>";
+
+                passengerRows.AppendLine($@"
+                <tr>
+                    <td style='padding: 0.75rem; border-bottom: 1px solid #dee2e6;'>{passenger.FirstName} {passenger.LastName}</td>
+                    <td style='padding: 0.75rem; border-bottom: 1px solid #dee2e6;'>#{reservation.Id}</td>
+                    <td style='padding: 0.75rem; border-bottom: 1px solid #dee2e6;'>
+                        <span class='badge {(reservation.TicketType == TicketType.Business ? "bg-primary" : "bg-secondary")}'>
+                            {reservation.TicketType}
+                        </span>
+                    </td>
+                    <td style='padding: 0.75rem; border-bottom: 1px solid #dee2e6;'>
+                        {statusBadge}
+                    </td>
+                </tr>");
+            }
+
+            var replacements = new Dictionary<string, string>
+            {
+                {"MainReservationId", mainReservation.Id.ToString()},
+                {"PassengerCount", passengers.Count.ToString()},
+                {"TicketType", ticketType},
+                {"FlightNumber", flight.AircraftNumber},
+                {"FromLocation", flight.FromLocation},
+                {"ToLocation", flight.ToLocation},
+                {"DepartureTime", flight.DepartureTime.ToString("f", CultureInfo.InvariantCulture)},
+                {"ArrivalTime", flight.ArrivalTime.ToString("f", CultureInfo.InvariantCulture)},
+                {"Duration", formattedDuration},
+                {"ConfirmationUrl", confirmationUrl},
+                {"DetailsUrl", detailsUrl},
+                {"ExpiresAt", expiresAt},
+                {"CurrentYear", DateTime.Now.Year.ToString()},
+                {"PassengerRows", passengerRows.ToString()}
+            };
+
+            return templateService.GetTemplate("GroupReservationConfirmation.html", replacements);
+        }
+
+        private static string FormatDuration(TimeSpan duration)
+        {
+            if (duration.TotalHours >= 24)
+            {
+                return $"{duration.Days} day{(duration.Days > 1 ? "s" : "")} {duration.Hours}h {duration.Minutes}m";
+            }
+            return $"{duration.Hours}h {duration.Minutes}m";
         }
     }
 }

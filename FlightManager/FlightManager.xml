@@ -237,109 +237,70 @@
             Controller for handling administrative operations including user and role management.
             </summary>
         </member>
-        <member name="M:FlightManager.Controllers.AdminController.#ctor(FlightManager.Data.ApplicationDbContext,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.Identity.UserManager{FlightManager.Data.Models.AppUser},Microsoft.AspNetCore.Identity.RoleManager{Microsoft.AspNetCore.Identity.IdentityRole},FlightManager.OwnerSettings)">
+        <member name="M:FlightManager.Controllers.AdminController.Index(System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
-            Initializes a new instance of the <see cref="T:FlightManager.Controllers.AdminController"/> class.
+            Displays a list of users with optional filtering and pagination.
             </summary>
-            <param name="context">The application database context.</param>
-            <param name="env">The web hosting environment.</param>
-            <param name="userManager">The user manager service.</param>
-            <param name="roleManager">The role manager service.</param>
-            <param name="ownerSettings">The owner configuration settings.</param>
         </member>
-        <member name="M:FlightManager.Controllers.AdminController.Index(System.String,System.String)">
+        <member name="M:FlightManager.Controllers.AdminController.Roles(System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
-            Displays a list of users with optional filtering by email and role.
+            Displays a list of all roles with pagination.
             </summary>
-            <param name="email">Email filter string.</param>
-            <param name="role">Role filter string.</param>
-            <returns>The view containing filtered users.</returns>
-        </member>
-        <member name="M:FlightManager.Controllers.AdminController.Roles">
-            <summary>
-            Displays a list of all roles with their user counts.
-            </summary>
-            <returns>The view containing role information.</returns>
         </member>
         <member name="M:FlightManager.Controllers.AdminController.Details(System.String)">
             <summary>
-            Displays details for a specific user.
+            Displays user details.
             </summary>
-            <param name="id">The user ID.</param>
-            <returns>The user details view or NotFound if user doesn't exist.</returns>
         </member>
         <member name="M:FlightManager.Controllers.AdminController.Create">
             <summary>
-            Displays the user creation form.
+            Displays user creation form.
             </summary>
-            <returns>The user creation view.</returns>
         </member>
         <member name="M:FlightManager.Controllers.AdminController.Create(FlightManager.Data.Models.AppUser,System.String,System.String,System.Collections.Generic.List{System.String})">
             <summary>
-            Handles user creation form submission.
+            Handles user creation.
             </summary>
-            <param name="appUser">The user data.</param>
-            <param name="password">The user password.</param>
-            <param name="confirmPassword">The password confirmation.</param>
-            <param name="selectedRoles">List of roles to assign to the user.</param>
-            <returns>Redirects to user list on success or returns creation view with errors.</returns>
         </member>
         <member name="M:FlightManager.Controllers.AdminController.Edit(System.String)">
             <summary>
-            Displays the user edit form.
+            Displays user edit form.
             </summary>
-            <param name="id">The user ID to edit.</param>
-            <returns>The edit view or NotFound if user doesn't exist.</returns>
         </member>
         <member name="M:FlightManager.Controllers.AdminController.Edit(System.String,FlightManager.Data.Models.AppUser,System.Collections.Generic.List{System.String})">
             <summary>
-            Handles user edit form submission.
+            Handles user updates.
             </summary>
-            <param name="id">The user ID being edited.</param>
-            <param name="user">The updated user data.</param>
-            <param name="selectedRoles">List of roles to assign to the user.</param>
-            <returns>Redirects to user list on success or returns edit view with errors.</returns>
         </member>
         <member name="M:FlightManager.Controllers.AdminController.Delete(System.String)">
             <summary>
-            Displays the user deletion confirmation form.
+            Displays user deletion confirmation.
             </summary>
-            <param name="id">The user ID to delete.</param>
-            <returns>The deletion confirmation view or NotFound if user doesn't exist.</returns>
         </member>
         <member name="M:FlightManager.Controllers.AdminController.DeleteConfirmed(System.String)">
             <summary>
-            Handles user deletion confirmation.
+            Handles user deletion.
             </summary>
-            <param name="id">The user ID to delete.</param>
-            <returns>Redirects to user list or returns error view.</returns>
         </member>
         <member name="M:FlightManager.Controllers.AdminController.CreateRole">
             <summary>
-            Displays the role creation form.
+            Displays role creation form.
             </summary>
-            <returns>The role creation view.</returns>
         </member>
         <member name="M:FlightManager.Controllers.AdminController.CreateRole(Microsoft.AspNetCore.Identity.IdentityRole)">
             <summary>
-            Handles role creation form submission.
+            Handles role creation.
             </summary>
-            <param name="role">The role data to create.</param>
-            <returns>Redirects to role list on success or returns creation view with errors.</returns>
         </member>
         <member name="M:FlightManager.Controllers.AdminController.DeleteRole(System.String)">
             <summary>
-            Displays the role deletion confirmation form.
+            Displays role deletion confirmation.
             </summary>
-            <param name="id">The role ID to delete.</param>
-            <returns>The deletion confirmation view or NotFound if role doesn't exist.</returns>
         </member>
         <member name="M:FlightManager.Controllers.AdminController.DeleteRoleConfirmed(System.String)">
             <summary>
-            Handles role deletion confirmation.
+            Handles role deletion.
             </summary>
-            <param name="id">The role ID to delete.</param>
-            <returns>Redirects to role list or returns error view.</returns>
         </member>
         <member name="T:FlightManager.Controllers.FlightsController">
             <summary>
@@ -353,7 +314,7 @@
             <param name="context">The application database context.</param>
             <param name="env">The web hosting environment.</param>
         </member>
-        <member name="M:FlightManager.Controllers.FlightsController.Index">
+        <member name="M:FlightManager.Controllers.FlightsController.Index(System.String,System.String,System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
             Displays a list of all flights.
             </summary>
@@ -365,12 +326,6 @@
             </summary>
             <param name="id">The flight ID.</param>
             <returns>The flight details view or NotFound if flight doesn't exist.</returns>
-        </member>
-        <member name="M:FlightManager.Controllers.FlightsController.Create">
-            <summary>
-            Displays the flight creation form.
-            </summary>
-            <returns>The flight creation view.</returns>
         </member>
         <member name="M:FlightManager.Controllers.FlightsController.Create(FlightManager.Data.Models.Flight)">
             <summary>
@@ -408,7 +363,7 @@
             <param name="id">The flight ID to delete.</param>
             <returns>Redirects to flight list.</returns>
         </member>
-        <member name="M:FlightManager.Controllers.FlightsController.Passengers(System.Int32)">
+        <member name="M:FlightManager.Controllers.FlightsController.Passengers(System.Int32,System.Int32,System.Int32)">
             <summary>
             Displays a list of passengers for a specific flight.
             </summary>
@@ -455,7 +410,7 @@
             Controller for managing flight reservations.
             </summary>
         </member>
-        <member name="M:FlightManager.Controllers.ReservationsController.#ctor(FlightManager.Data.ApplicationDbContext,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.Identity.UserManager{FlightManager.Data.Models.AppUser},FlightManager.EmailService.BrevoEmailService)">
+        <member name="M:FlightManager.Controllers.ReservationsController.#ctor(FlightManager.Data.ApplicationDbContext,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.Identity.UserManager{FlightManager.Data.Models.AppUser},FlightManager.EmailService.BrevoEmailService,FlightManager.Extensions.Services.EmailTemplateService)">
             <summary>
             Initializes a new instance of the <see cref="T:FlightManager.Controllers.ReservationsController"/> class.
             </summary>
@@ -463,8 +418,9 @@
             <param name="env">The web hosting environment.</param>
             <param name="userManager">The user manager service.</param>
             <param name="emailService">The email service.</param>
+            <param name="templateService">The email template service.</param>
         </member>
-        <member name="M:FlightManager.Controllers.ReservationsController.Index(System.String,System.String,System.String,System.String)">
+        <member name="M:FlightManager.Controllers.ReservationsController.Index(System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
             Displays a list of reservations with optional filtering.
             </summary>
@@ -557,7 +513,7 @@
             </summary>
             <param name="context">The application database context.</param>
         </member>
-        <member name="M:FlightManager.Controllers.ReservationUsersController.Index">
+        <member name="M:FlightManager.Controllers.ReservationUsersController.Index(System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
             Displays a list of reservation users.
             </summary>
@@ -640,6 +596,20 @@
             <exception cref="T:System.InvalidOperationException">Thrown when owner password is not configured.</exception>
             <exception cref="T:System.Exception">Thrown when owner user creation or update fails.</exception>
         </member>
+        <member name="M:FlightManager.Extensions.Services.ReservationCleanupService.#ctor(Microsoft.Extensions.Logging.ILogger{FlightManager.Extensions.Services.ReservationCleanupService},System.IServiceProvider,Microsoft.Extensions.Options.IOptions{FlightManager.ReservationCleanupSettings})">
+            <summary>
+            Initializes a new instance of the ReservationCleanupService class.
+            </summary>
+            <param name="logger">The logger to use for logging.</param>
+            <param name="services">The service provider to use for resolving services.</param>
+            <param name="settings">The settings for reservation cleanup, including check interval and expiry time.</param>
+        </member>
+        <member name="M:FlightManager.Extensions.Services.ReservationCleanupService.ExecuteAsync(System.Threading.CancellationToken)">
+            <summary>
+            Executes the cleanup service, periodically checking for expired reservations.
+            </summary>
+            <param name="stoppingToken">The token used to signal cancellation of the task.</param>
+        </member>
         <member name="T:FlightManager.Program">
             <summary>
             The main entry point for the FlightManager application.
@@ -649,23 +619,10 @@
             <summary>
             The entry point of the application.
             </summary>
-            <param name="args">Command-line arguments passed to the application.</param>
-            <returns>A Task representing the asynchronous operation.</returns>
-            <exception cref="T:System.InvalidOperationException">Thrown when the default connection string is not found.</exception>
         </member>
         <member name="T:FlightManager.OwnerSettings">
             <summary>
             Represents configuration settings for the owner user.
-            </summary>
-        </member>
-        <member name="P:FlightManager.OwnerSettings.OwnerEmail">
-            <summary>
-            Gets or sets the email address for the owner user.
-            </summary>
-        </member>
-        <member name="P:FlightManager.OwnerSettings.OwnerPassword">
-            <summary>
-            Gets or sets the password for the owner user.
             </summary>
         </member>
     </members>

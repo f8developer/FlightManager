@@ -28,6 +28,12 @@
                     <p><strong>App User ID:</strong> @(Model.AppUser != null ? Model.AppUser.Id : "N/A")</p>
                 </div>
             </div>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Email)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Email)
+            </dd>
         </div>
         @if (User.Identity.IsAuthenticated){
             <div class="card-footer d-flex justify-content-between">

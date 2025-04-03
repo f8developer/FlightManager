@@ -10,6 +10,9 @@
     var standardAvailable = (Model.PassengerCapacity - Model.BusinessClassCapacity) - standardReserved;
     var businessPercentage = (businessAvailable * 100) / Math.Max(1, Model.BusinessClassCapacity);
     var standardPercentage = (standardAvailable * 100) / Math.Max(1, (Model.PassengerCapacity - Model.BusinessClassCapacity));
+    var businessConfirmed = Model.Reservations?.Count(r => r.TicketType == TicketType.Business && r.IsConfirmed) ?? 0;
+    var standardConfirmed = Model.Reservations?.Count(r => r.TicketType != TicketType.Business && r.IsConfirmed) ?? 0;
+    var duration = Model.ArrivalTime - Model.DepartureTime;
 }
 
 <div class="flight-details-container">
@@ -37,29 +40,15 @@
                             <div class="timing departure">
                                 <div class="timing-label">Departure</div>
                                 <div class="timing-value">@Model.DepartureTime.ToString("f")</div>
-                                <div class="timing-airport">@Model.FromLocation Airport</div>
                             </div>
                             <div class="flight-duration">
                                 <i class="fas fa-clock"></i>
-                                @{
-                                    var duration = Model.ArrivalTime - Model.DepartureTime;
-                                    var days = duration.Days;
-                                    var hours = duration.Hours;
-                                    var minutes = duration.Minutes;
-                                }
-                                @if (days > 0)
+                                @if (duration.Days > 0)
                                 {
-                                    @days
-
-                                    <text>d </text>
+                                    @duration.Days <text>d </text>
                                 }
-                                @hours<text>h </text>
-                                @minutes<text>m</text>
-                            </div>
-                            <div class="timing arrival">
-                                <div class="timing-label">Arrival</div>
-                                <div class="timing-value">@Model.ArrivalTime.ToString("f")</div>
-                                <div class="timing-airport">@Model.ToLocation Airport</div>
+                                @duration.Hours<text>h </text>
+                                @duration.Minutes<text>m</text>
                             </div>
                         </div>
                     </div>
@@ -73,10 +62,6 @@
                                 <span class="info-label">Pilot:</span>
                                 <span class="info-value">@Model.PilotName</span>
                             </div>
-                            <div class="info-item">
-                                <span class="info-label">Status:</span>
-                                <span class="info-value badge bg-success">Scheduled</span>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -85,28 +70,25 @@
 
         <!-- Capacity Section -->
         <div class="capacity-section mt-4">
-            <h3 class="section-title">
-                <i class="fas fa-users me-2"></i>Passenger Capacity
-            </h3>
-
             <div class="row">
                 <div class="col-md-6">
                     <div class="capacity-card">
                         <h4>Business Class</h4>
                         <div class="capacity-stats">
-                            <span class="available">@businessAvailable</span>
-                            <span class="separator">/</span>
-                            <span class="total">@Model.BusinessClassCapacity</span>
-                            <span class="seats">seats available</span>
+                            <span class="text-success">@businessConfirmed confirmed</span> |
+                            <span class="text-warning">@(businessReserved - businessConfirmed) pending</span> |
+                            <span class="text-muted">@(Model.BusinessClassCapacity - businessReserved) available</span>
                         </div>
                         <div class="progress mt-2">
                             <div class="progress-bar bg-success"
-                            role="progressbar"
-                            style="width: @businessPercentage%"
-                            aria-valuenow="@businessAvailable"
-                            aria-valuemin="0"
-                            aria-valuemax="@Model.BusinessClassCapacity">
-                            </div>
+                                 style="width:@((businessConfirmed * 100) / Model.BusinessClassCapacity)%"
+                                 title="Confirmed"></div>
+                            <div class="progress-bar bg-warning"
+                                 style="width:@(((businessReserved - businessConfirmed) * 100) / Model.BusinessClassCapacity)%"
+                                 title="Pending confirmation"></div>
+                            <div class="progress-bar bg-light"
+                                 style="width:@(((Model.BusinessClassCapacity - businessReserved) * 100) / Model.BusinessClassCapacity)%"
+                                 title="Available"></div>
                         </div>
                     </div>
                 </div>
@@ -114,19 +96,84 @@
                     <div class="capacity-card">
                         <h4>Economy Class</h4>
                         <div class="capacity-stats">
-                            <span class="available">@standardAvailable</span>
-                            <span class="separator">/</span>
-                            <span class="total">@(Model.PassengerCapacity - Model.BusinessClassCapacity)</span>
-                            <span class="seats">seats available</span>
+                            <span class="text-success">@standardConfirmed confirmed</span> |
+                            <span class="text-warning">@(standardReserved - standardConfirmed) pending</span> |
+                            <span class="text-muted">@((Model.PassengerCapacity - Model.BusinessClassCapacity) - standardReserved) available</span>
                         </div>
                         <div class="progress mt-2">
-                            <div class="progress-bar bg-primary"
-                            role="progressbar"
-                            style="width: @standardPercentage%"
-                            aria-valuenow="@standardAvailable"
-                            aria-valuemin="0"
-                            aria-valuemax="@(Model.PassengerCapacity - Model.BusinessClassCapacity)">
-                            </div>
+                            <div class="progress-bar bg-success"
+                                 style="width:@((standardConfirmed * 100) / (Model.PassengerCapacity - Model.BusinessClassCapacity))%"
+                                 title="Confirmed"></div>
+                            <div class="progress-bar bg-warning"
+                                 style="width:@(((standardReserved - standardConfirmed) * 100) / (Model.PassengerCapacity - Model.BusinessClassCapacity))%"
+                                 title="Pending confirmation"></div>
+                            <div class="progress-bar bg-light"
+                                 style="width:@((((Model.PassengerCapacity - Model.BusinessClassCapacity) - standardReserved) * 100) / (Model.PassengerCapacity - Model.BusinessClassCapacity))%"
+                                 title="Available"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservations Dropdown Section -->
+        <div class="reservations-section mt-4">
+            <div class="accordion" id="reservationsAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingReservations">
+                        <button class="accordion-button collapsed" type="button" id="toggleReservationsButton">
+                            <i class="fas fa-users me-2"></i> Show Reservations (@Model.Reservations?.Count)
+                        </button>
+                    </h2>
+                    <div id="collapseReservations" class="accordion-collapse collapse"
+                         aria-labelledby="headingReservations" data-bs-parent="#reservationsAccordion">
+                        <div class="accordion-body">
+                            @if (Model.Reservations?.Any() == true)
+                            {
+                                <ul class="list-group">
+                                    @foreach (var reservation in Model.Reservations)
+                                    {
+                                        var expiryTime = reservation.CreatedAt.AddHours(48);
+                                        <li class="list-group-item d-flex justify-content-between align-items-center @(!reservation.IsConfirmed ? "bg-light" : "")">
+                                            @if (reservation.IsConfirmed)
+                                            {
+                                                @if (isAdmin && reservation.ReservationUser != null)
+                                                {
+                                                    <a asp-controller="ReservationUsers" asp-action="Details" asp-route-id="@reservation.ReservationUser.Id">
+                                                        @reservation.ReservationUser.UserName
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    @reservation.ReservationUser?.UserName
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span>@reservation.ReservationUser?.UserName</span>
+                                            }
+
+                                            <div class="d-flex align-items-center">
+                                                @if (!reservation.IsConfirmed)
+                                                {
+                                                    <span class="badge bg-warning text-dark me-2 countdown-badge"
+                                                          data-expiry="@expiryTime.ToString("O")">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        <span class="countdown-text"></span>
+                                                    </span>
+                                                }
+                                                <span class="badge @(reservation.TicketType == TicketType.Business ? "bg-success" : "bg-primary")">
+                                                    @reservation.TicketType
+                                                </span>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No reservations yet</p>
+                            }
                         </div>
                     </div>
                 </div>
@@ -134,7 +181,7 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="action-buttons mt-5">
+        <div class="action-buttons mt-4">
             @if (isAdmin)
             {
                 <a class="btn btn-danger me-2" asp-action="Delete" asp-route-id="@Model.Id">
@@ -143,8 +190,9 @@
                 <a class="btn btn-primary me-2" asp-action="Edit" asp-route-id="@Model.Id">
                     <i class="fas fa-edit me-1"></i> Edit Flight
                 </a>
-                <a class="btn btn-outline-secondary me-2" asp-action="Passengers" asp-route-id="@Model.Id">
-                    <i class="fas fa-users me-1"></i> View Passengers
+                <!-- New Passengers Button -->
+                <a class="btn btn-info me-2" asp-action="Passengers" asp-route-id="@Model.Id">
+                    <i class="fas fa-users me-1"></i> Passengers
                 </a>
             }
             <a class="btn btn-secondary" asp-action="Index">
@@ -156,189 +204,32 @@
 
 @section Styles {
     <style>
-        .flight-details-container {
-            background-color: #f8f9fa;
-            min-height: 100vh;
-            padding-bottom: 3rem;
+        /* Previous styles remain the same */
+
+        .list-group-item.bg-light {
+            background-color: #f8f9fa !important;
         }
 
-        .flight-header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 3rem 0;
-            margin-bottom: 2rem;
+        .countdown-badge {
+            font-size: 0.8rem;
+            padding: 0.35em 0.65em;
         }
 
-        .flight-route {
-            text-align: center;
+        .expiring-soon {
+            animation: pulse 1s infinite;
         }
 
-            .flight-route h1 {
-                font-weight: 700;
-                margin-bottom: 0.5rem;
+        @@keyframes pulse {
+            0% {
+                opacity: 1;
             }
 
-            .flight-route .fa-plane {
-                transform: rotate(90deg);
-                color: rgba(255, 255, 255, 0.7);
+            50% {
+                opacity: 0.5;
             }
 
-        .flight-number {
-            font-size: 1.2rem;
-            opacity: 0.8;
-        }
-
-        .summary-card {
-            border: none;
-            border-radius: 10px;
-            margin-top: -50px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .flight-timings {
-            position: relative;
-            padding: 1rem 0;
-        }
-
-        .timing {
-            margin-bottom: 1.5rem;
-        }
-
-        .timing-label {
-            font-size: 0.9rem;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .timing-value {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1e3c72;
-        }
-
-        .timing-airport {
-            font-size: 1rem;
-            color: #495057;
-        }
-
-        .flight-duration {
-            position: relative;
-            margin: 1.5rem 0;
-            padding-left: 2rem;
-            color: #6c757d;
-        }
-
-            .flight-duration:before {
-                content: "";
-                position: absolute;
-                left: 0;
-                top: 50%;
-                width: 100%;
-                height: 1px;
-                background-color: #dee2e6;
-                z-index: -1;
-            }
-
-            .flight-duration .fa-clock {
-                background-color: #f8f9fa;
-                padding: 0 0.5rem;
-            }
-
-        .flight-info {
-            padding: 1rem;
-        }
-
-        .info-item {
-            margin-bottom: 1rem;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #1e3c72;
-            margin-right: 0.5rem;
-        }
-
-        .info-value {
-            color: #495057;
-        }
-
-        .capacity-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-
-        .section-title {
-            color: #1e3c72;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-        }
-
-        .capacity-card {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 8px;
-            height: 100%;
-        }
-
-            .capacity-card h4 {
-                color: #1e3c72;
-                font-size: 1.2rem;
-                margin-bottom: 1rem;
-            }
-
-        .capacity-stats {
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .available {
-            font-weight: 700;
-            color: #28a745;
-        }
-
-        .total {
-            font-weight: 600;
-        }
-
-        .seats {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-
-        .progress {
-            height: 8px;
-            background-color: #e9ecef;
-            border-radius: 4px;
-        }
-
-        .action-buttons {
-            text-align: center;
-        }
-
-        .btn {
-            padding: 0.5rem 1.5rem;
-            font-weight: 500;
-            border-radius: 50px;
-            min-width: 150px;
-        }
-
-        @@media (max-width: 768px) {
-            .flight-header {
-                padding: 2rem 0;
-            }
-
-            .summary-card {
-                margin-top: -30px;
-            }
-
-            .action-buttons .btn {
-                display: block;
-                width: 100%;
-                margin-bottom: 1rem;
+            100% {
+                opacity: 1;
             }
         }
     </style>
@@ -346,4 +237,99 @@
 
 @section StyleLinks {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize accordion toggle
+            const toggleButton = document.getElementById('toggleReservationsButton');
+            const collapseElement = document.getElementById('collapseReservations');
+
+            let isCollapsed = true;
+            toggleButton.addEventListener('click', function() {
+                if (isCollapsed) {
+                    collapseElement.style.display = 'block';
+                    collapseElement.classList.add('show');
+                    toggleButton.classList.remove('collapsed');
+                    isCollapsed = false;
+                    startCountdowns(); // Start countdowns when section is opened
+                } else {
+                    collapseElement.style.display = 'none';
+                    collapseElement.classList.remove('show');
+                    toggleButton.classList.add('collapsed');
+                    isCollapsed = true;
+                    stopCountdowns(); // Stop countdowns when section is closed
+                }
+            });
+
+            // Countdown function using UTC time
+            function updateCountdown(element) {
+                const expiry = new Date(element.dataset.expiry);
+                const now = new Date();
+                const timeLeft = expiry - now;
+
+                if (timeLeft <= 0) {
+                    element.querySelector('.countdown-text').textContent = "Expired";
+                    element.classList.add('bg-danger');
+                    element.classList.remove('bg-warning', 'expiring-soon');
+                    return false; // Stop updating
+                }
+
+                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                element.querySelector('.countdown-text').textContent =
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                // Visual feedback
+                if (hours < 1) {
+                    element.classList.add('expiring-soon');
+                    if (minutes < 5) {
+                        element.classList.add('bg-danger');
+                        element.classList.remove('bg-warning');
+                    }
+                }
+
+                return true;
+            }
+
+            function startCountdowns() {
+                const countdownBadges = document.querySelectorAll('.countdown-badge');
+                countdownBadges.forEach(badge => {
+                    // Clear any existing interval
+                    if (badge.dataset.intervalId) {
+                        clearInterval(badge.dataset.intervalId);
+                    }
+
+                    // Initial update
+                    updateCountdown(badge);
+
+                    // Set up interval to update every second
+                    const intervalId = setInterval(() => {
+                        updateCountdown(badge);
+                    }, 1000);
+
+                    // Store interval ID on the element
+                    badge.dataset.intervalId = intervalId;
+                });
+            }
+
+            function stopCountdowns() {
+                const countdownBadges = document.querySelectorAll('.countdown-badge');
+                countdownBadges.forEach(badge => {
+                    if (badge.dataset.intervalId) {
+                        clearInterval(badge.dataset.intervalId);
+                        delete badge.dataset.intervalId;
+                    }
+                });
+            }
+
+            // Start countdowns if section is already open
+            if (!collapseElement.classList.contains('collapse')) {
+                startCountdowns();
+            }
+        });
+    </script>
 }

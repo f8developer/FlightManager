@@ -2,9 +2,13 @@ using FlightManager.Data;
 using FlightManager.Data.Models;
 using FlightManager.EmailService;
 using FlightManager.Extensions;
+using FlightManager.Extensions.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Globalization;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 
 namespace FlightManager;
 
@@ -16,28 +20,51 @@ public class Program
     /// <summary>
     /// The entry point of the application.
     /// </summary>
-    /// <param name="args">Command-line arguments passed to the application.</param>
-    /// <returns>A Task representing the asynchronous operation.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when the default connection string is not found.</exception>
     public static async Task Main(string[] args)
     {
+        // Set default culture for all threads
+        var cultureInfo = new CultureInfo("en-US");
+        CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+        CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+
         var builder = WebApplication.CreateBuilder(args);
 
+        // Configure request localization
+        builder.Services.Configure<RequestLocalizationOptions>(options =>
+        {
+            options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("en-US");
+            options.SupportedCultures = new[] { cultureInfo };
+            options.SupportedUICultures = new[] { cultureInfo };
+            options.FallBackToParentCultures = true;
+            options.FallBackToParentUICultures = true;
+        });
+
         // Add services to the container.
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+            throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
+
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
         // Configure email service
         builder.Services.AddTransient<BrevoEmailService>();
+        builder.Services.AddScoped<EmailTemplateService>();
 
-        // Bind the configuration section to a strongly-typed object
+        // Bind configuration sections
         builder.Services.Configure<OwnerSettings>(builder.Configuration.GetSection("OwnerSettings"));
+        builder.Services.Configure<ReservationCleanupSettings>(
+            builder.Configuration.GetSection("ReservationCleanup"));
 
-        // Add singleton so Razor views can access it
+        // Add singleton for Razor views
         builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<OwnerSettings>>().Value);
 
+        // Add reservation cleanup service
+        builder.Services.AddHostedService<ReservationCleanupService>();
+        builder.Services.AddSingleton<ReservationCleanupService>();
+
+        // Configure identity with relaxed password requirements
         builder.Services.AddDefaultIdentity<AppUser>(options =>
         {
             options.SignIn.RequireConfirmedAccount = false;
@@ -47,26 +74,36 @@ public class Program
             options.Password.RequireNonAlphanumeric = false;
             options.Password.RequiredLength = 3;
         })
-            .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>();
-        builder.Services.AddControllersWithViews();
+        .AddRoles<IdentityRole>()
+        .AddEntityFrameworkStores<ApplicationDbContext>();
 
+        // Configure controllers with JSON options
+        builder.Services.AddControllersWithViews()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
+                options.JsonSerializerOptions.PropertyNamingPolicy = null; // Keep PascalCase
+            });
+
+        // Configure application cookie
         builder.Services.ConfigureApplicationCookie(options =>
         {
-            // Disable redirects for access denied
             options.Events.OnRedirectToAccessDenied = context =>
             {
                 context.Response.StatusCode = builder.Environment.IsDevelopment()
-                    ? StatusCodes.Status403Forbidden  // 403 in development
-                    : StatusCodes.Status404NotFound;  // 404 in production
+                    ? StatusCodes.Status403Forbidden
+                    : StatusCodes.Status404NotFound;
                 return Task.CompletedTask;
             };
         });
 
         var app = builder.Build();
 
-        OwnerSettings ownerSettings = builder.Configuration.GetSection("OwnerSettings").Get<OwnerSettings>();
+        // Use request localization
+        app.UseRequestLocalization();
 
+        // Initialize owner settings
+        var ownerSettings = builder.Configuration.GetSection("OwnerSettings").Get<OwnerSettings>();
         await AppStart.InitializeAsync(app, ownerSettings);
 
         // Configure the HTTP request pipeline.
@@ -77,14 +114,12 @@ public class Program
         else
         {
             app.UseExceptionHandler("/Home/Error");
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseRouting();
-
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -105,13 +140,12 @@ public class Program
 /// </summary>
 public class OwnerSettings
 {
-    /// <summary>
-    /// Gets or sets the email address for the owner user.
-    /// </summary>
     public string OwnerEmail { get; set; }
-
-    /// <summary>
-    /// Gets or sets the password for the owner user.
-    /// </summary>
     public string OwnerPassword { get; set; }
+}
+
+public class ReservationCleanupSettings
+{
+    public int CheckIntervalMinutes { get; set; } = 10;
+    public int ExpiryHours { get; set; } = 48;
 }

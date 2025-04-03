@@ -1,16 +1,19 @@
 ﻿@using FlightManager.Data.Models
-@using Microsoft.AspNetCore.Mvc.TagHelpers
-@model FlightManager.Data.Models.Flight
+@model FlightManager.Data.Models.FlightPassengersViewModel
 
 @{
-    ViewData["Title"] = $"Passengers - Flight {Model.AircraftNumber}";
+    ViewData["Title"] = $"Passengers - Flight {Model.Flight.AircraftNumber}";
+    var businessReserved = Model.PaginatedReservations .Count(r => r.TicketType == TicketType.Business);
+    var businessConfirmed = Model.PaginatedReservations .Count(r => r.TicketType == TicketType.Business && r.IsConfirmed);
+    var standardReserved = Model.PaginatedReservations .Count(r => r.TicketType != TicketType.Business);
+    var standardConfirmed = Model.PaginatedReservations .Count(r => r.TicketType != TicketType.Business && r.IsConfirmed);
 }
 
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>
             <i class="fas fa-users"></i> Passenger List
-            <small class="text-muted">Flight #@Model.AircraftNumber</small>
+            <small class="text-muted">Flight #@Model.Flight.AircraftNumber</small>
         </h1>
         <a asp-action="Index" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Back to Flights
@@ -19,22 +22,39 @@
 
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">@Model.FromLocation → @Model.ToLocation</h4>
+            <h4 class="mb-0">@Model.Flight.FromLocation → @Model.Flight.ToLocation</h4>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <h5><span class="badge bg-success"></span> Business Class Passengers</h5>
-                    @if (Model.Reservations?.Any(r => r.TicketType == TicketType.Business) ?? false)
+                    <h5>
+                        <span class="badge bg-success"></span> Business Class Passengers
+                        <small class="text-muted">(@Model.PaginatedReservations.Count(r => r.TicketType == TicketType.Business && r.IsConfirmed) confirmed, @(Model.PaginatedReservations.Count(r => r.TicketType == TicketType.Business && !r.IsConfirmed)) pending)</small>
+                    </h5>
+                    @if (Model.PaginatedReservations.Any(r => r.TicketType == TicketType.Business))
                     {
                         <div class="list-group">
-                            @foreach (var reservation in Model.Reservations.Where(r => r.TicketType == TicketType.Business))
+                            @foreach (var reservation in Model.PaginatedReservations.Where(r => r.TicketType == TicketType.Business))
                             {
-                                <div class="list-group-item">
+                                <div class="list-group-item @(!reservation.IsConfirmed ? "list-group-item-warning" : "")">
                                     <div class="d-flex justify-content-between">
                                         <div>
                                             <strong>@reservation.ReservationUser?.UserName</strong>
-                                            <div class="text-muted small">@reservation.Nationality</div>
+                                            <div class="text-muted small">
+                                                @reservation.Nationality |
+                                                @if (reservation.IsConfirmed)
+                                                {
+                                                    <span class="text-success">Confirmed</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-warning">Pending confirmation</span>
+                                                    <span class="badge bg-warning ms-2">
+                                                        <i class="fas fa-clock"></i>
+                                                        <span class="countdown" data-expiry="@reservation.CreatedAt.AddHours(48).ToString("O")"></span>
+                                                    </span>
+                                                }
+                                            </div>
                                         </div>
                                         <span class="badge bg-success">Business</span>
                                     </div>
@@ -49,17 +69,34 @@
                 </div>
 
                 <div class="col-md-6">
-                    <h5><span class="badge bg-primary"></span> Standard Class Passengers</h5>
-                    @if (Model.Reservations?.Any(r => r.TicketType != TicketType.Business) ?? false)
+                    <h5>
+                        <span class="badge bg-primary"></span> Standard Class Passengers
+                        <small class="text-muted">(@Model.PaginatedReservations.Count(r => r.TicketType != TicketType.Business && r.IsConfirmed) confirmed, @(Model.PaginatedReservations.Count(r => r.TicketType != TicketType.Business && !r.IsConfirmed)) pending)</small>
+                    </h5>
+                    @if (Model.PaginatedReservations.Any(r => r.TicketType != TicketType.Business))
                     {
                         <div class="list-group">
-                            @foreach (var reservation in Model.Reservations.Where(r => r.TicketType != TicketType.Business))
+                            @foreach (var reservation in Model.PaginatedReservations.Where(r => r.TicketType != TicketType.Business))
                             {
-                                <div class="list-group-item">
+                                <div class="list-group-item @(!reservation.IsConfirmed ? "list-group-item-warning" : "")">
                                     <div class="d-flex justify-content-between">
                                         <div>
                                             <strong>@reservation.ReservationUser?.UserName</strong>
-                                            <div class="text-muted small">@reservation.Nationality</div>
+                                            <div class="text-muted small">
+                                                @reservation.Nationality |
+                                                @if (reservation.IsConfirmed)
+                                                {
+                                                    <span class="text-success">Confirmed</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-warning">Pending confirmation</span>
+                                                    <span class="badge bg-warning ms-2">
+                                                        <i class="fas fa-clock"></i>
+                                                        <span class="countdown" data-expiry="@reservation.CreatedAt.AddHours(48).ToString("O")"></span>
+                                                    </span>
+                                                }
+                                            </div>
                                         </div>
                                         <span class="badge bg-primary">Standard</span>
                                     </div>
@@ -76,29 +113,136 @@
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">Summary</h5>
+    <!-- Pagination controls -->
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center">
+                <span class="me-2">Show:</span>
+                <select class="form-select form-select-sm w-auto" id="pageSizeSelect">
+                    @foreach (var size in ViewBag.AvailablePageSizes)
+                    {
+                        <option value="@size" selected="@(size == ViewBag.CurrentPageSize)">@size</option>
+                    }
+                </select>
+                <span class="ms-2">passengers per page</span>
+            </div>
         </div>
-        <div class="card-body">
-            <dl class="row">
-                <dt class="col-sm-4">Total Capacity:</dt>
-                <dd class="col-sm-8">@Model.PassengerCapacity</dd>
+        <div class="col-md-6">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-end">
+                    <li class="page-item @(!Model.PaginatedReservations.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Passengers"
+                           asp-route-id="@Model.Flight.Id"
+                           asp-route-pageNumber="@(Model.PaginatedReservations.PageIndex - 1)"
+                           asp-route-pageSize="@ViewBag.CurrentPageSize">
+                            Previous
+                        </a>
+                    </li>
 
-                <dt class="col-sm-4">Business Class:</dt>
-                <dd class="col-sm-8">
-                    @Model.Reservations?.Count(r => r.TicketType == TicketType.Business) of @Model.BusinessClassCapacity booked
-                </dd>
+                    @for (var i = 1; i <= Model.PaginatedReservations.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.PaginatedReservations.PageIndex ? "active" : "")">
+                            <a class="page-link"
+                               asp-action="Passengers"
+                               asp-route-id="@Model.Flight.Id"
+                               asp-route-pageNumber="@i"
+                               asp-route-pageSize="@ViewBag.CurrentPageSize">
+                                @i
+                            </a>
+                        </li>
+                    }
 
-                <dt class="col-sm-4">Standard Class:</dt>
-                <dd class="col-sm-8">
-                    @Model.Reservations?.Count(r => r.TicketType != TicketType.Business) of @(Model.PassengerCapacity - Model.BusinessClassCapacity) booked
-                </dd>
-            </dl>
+                    <li class="page-item @(!Model.PaginatedReservations.HasNextPage ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Passengers"
+                           asp-route-id="@Model.Flight.Id"
+                           asp-route-pageNumber="@(Model.PaginatedReservations.PageIndex + 1)"
+                           asp-route-pageSize="@ViewBag.CurrentPageSize">
+                            Next
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
 </div>
 
-@section StyleLinks {
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Page size selector
+            document.getElementById('pageSizeSelect').addEventListener('change', function() {
+                const pageSize = this.value;
+                const url = new URL(window.location.href);
+                url.searchParams.set('pageSize', pageSize);
+                url.searchParams.set('pageNumber', 1);
+                window.location.href = url.toString();
+            });
+
+            // Countdown timer for pending reservations
+            function updateCountdowns() {
+                document.querySelectorAll('.countdown').forEach(element => {
+                    const expiry = new Date(element.dataset.expiry);
+                    const now = new Date();
+                    const timeLeft = expiry - now;
+
+                    if (timeLeft <= 0) {
+                        element.textContent = "Expired";
+                        element.closest('.badge').classList.add('bg-danger');
+                        element.closest('.badge').classList.remove('bg-warning');
+                        return;
+                    }
+
+                    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                    element.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                    if (hours < 1) {
+                        element.closest('.badge').classList.add('expiring-soon');
+                        if (minutes < 5) {
+                            element.closest('.badge').classList.add('bg-danger');
+                            element.closest('.badge').classList.remove('bg-warning');
+                        }
+                    }
+                });
+            }
+
+            // Update countdowns every second
+            updateCountdowns();
+            setInterval(updateCountdowns, 1000);
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .countdown {
+            font-family: monospace;
+        }
+
+        .expiring-soon {
+            animation: pulse 1s infinite;
+        }
+
+        @@keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .list-group-item-warning {
+            background-color: #fff3cd;
+        }
+    </style>
 }

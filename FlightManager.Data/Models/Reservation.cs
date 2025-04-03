@@ -15,6 +15,12 @@ public class Reservation : IValidatableObject
     public int Id { get; set; }
 
     /// <summary>
+    /// Gets or sets the date and time when the reservation was created.
+    /// </summary>
+    [Required]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
     /// Gets or sets the ID of the user who made this reservation.
     /// </summary>
     [Required(ErrorMessage = "Reservation user ID is required.")]
@@ -49,6 +55,22 @@ public class Reservation : IValidatableObject
     [Required(ErrorMessage = "Ticket type is required.")]
     [Column(TypeName = "nvarchar(12)")]
     public TicketType TicketType { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the reservation has been confirmed via email.
+    /// </summary>
+    public bool IsConfirmed { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the confirmation token for email verification.
+    /// </summary>
+    [StringLength(64)]
+    public string? ConfirmationToken { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date and time when the reservation was confirmed.
+    /// </summary>
+    public DateTime? ConfirmedAt { get; set; }
 
     /// <summary>
     /// Validates the current object and returns any errors as a collection of ValidationResult objects.

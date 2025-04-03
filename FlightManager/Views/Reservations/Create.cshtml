@@ -8,6 +8,13 @@
 
 <div class="container mt-4">
     <div class="card shadow-sm">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
         @if (ViewBag.NoFlightsAvailable != null)
     {
             <div class="card-header bg-warning text-white">
@@ -29,18 +36,6 @@
             <h4 class="mb-0">Create Reservation</h4>
         </div>
         <div class="card-body">
-            <!-- Display general form errors -->
-            @if (ViewData.ModelState[""]?.Errors.Count > 0)
-            {
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach (var error in ViewData.ModelState[""].Errors)
-                        {
-                            <li>@error.ErrorMessage</li>
-                        }
-                    </ul>
-                </div>
-            }
             <form asp-action="Create">
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
@@ -132,7 +127,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="Email" class="control-label">Email Address (optional but recommended)</label>
+                            <label for="Email" class="control-label">Email Address</label>
                             <input type="email" class="form-control" id="Email" name="Email" />
                             <small class="form-text text-muted">We'll send your reservation confirmation to this address</small>
                             <span class="text-danger field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>

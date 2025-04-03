@@ -1,4 +1,5 @@
-﻿@model IEnumerable<FlightManager.Data.Models.AppUser>
+﻿@using FlightManager.Data.Models
+@model PaginatedList<FlightManager.Data.Models.AppUser>
 
 @{
     ViewData["Title"] = "Users";
@@ -25,20 +26,20 @@
         <form method="get" class="row g-3">
             <div class="col-md-5">
                 <label for="emailSearch" class="form-label">Search by Email</label>
-                <input type="text" class="form-control" id="emailSearch" name="email" 
-                value="@Context.Request.Query["email"]" placeholder="Enter email...">
+                <input type="text" class="form-control" id="emailSearch" name="email"
+                       value="@Context.Request.Query["email"]" placeholder="Enter email...">
             </div>
             <div class="col-md-5">
                 <label for="roleSearch" class="form-label">Search by Role</label>
                 <select class="form-select" id="roleSearch" name="role">
                     <option value="">All Roles</option>
-                    @foreach (var role in 
-                    ViewBag.AllRoles as List<string>)
+                    @foreach (var role in ViewBag.AllRoles as List<string>)
                     {
                         <option value="@role" selected="@(Context.Request.Query["role"] == role)">@role</option>
                     }
                 </select>
             </div>
+            <input type="hidden" name="pageSize" value="@ViewBag.CurrentPageSize" />
             <div class="col-md-2 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary me-2">
                     <i class="fas fa-search"></i> Search
@@ -52,7 +53,6 @@
 </div>
 
 <div class="d-flex justify-content-between mb-3">
-
     <div>
         @if (User.IsInRole("Owner"))
         {
@@ -64,7 +64,7 @@
             <i class="fas fa-shield-alt"></i> Manage Roles
         </a>
     </div>
-    <span class="text-muted">Total Users: @Model.Count()</span>
+    <span class="text-muted">Total Users: @Model.TotalCount</span>
 </div>
 
 <div class="table-responsive">
@@ -115,13 +115,100 @@
     </table>
 </div>
 
+<!-- Pagination controls -->
+<div class="row mt-3">
+    <div class="col-md-6">
+        <div class="d-flex align-items-center">
+            <span class="me-2">Show:</span>
+            <select class="form-select form-select-sm w-auto" id="pageSizeSelect">
+                @foreach (var size in ViewBag.AvailablePageSizes)
+                {
+                    <option value="@size" selected="@(size == ViewBag.CurrentPageSize)">@size</option>
+                }
+            </select>
+            <span class="ms-2">items per page</span>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-end">
+                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageIndex - 1)"
+                       asp-route-pageSize="@ViewBag.CurrentPageSize"
+                       asp-route-email="@Context.Request.Query["email"]"
+                       asp-route-role="@Context.Request.Query["role"]">
+                        Previous
+                    </a>
+                </li>
+
+                @for (var i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-pageNumber="@i"
+                           asp-route-pageSize="@ViewBag.CurrentPageSize"
+                           asp-route-email="@Context.Request.Query["email"]"
+                           asp-route-role="@Context.Request.Query["role"]">
+                            @i
+                        </a>
+                    </li>
+                }
+                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageIndex + 1)"
+                       asp-route-pageSize="@ViewBag.CurrentPageSize"
+                       asp-route-email="@Context.Request.Query["email"]"
+                       asp-route-role="@Context.Request.Query["role"]">
+                        Next
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
 @section StyleLinks {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
 }
+
 @section Styles {
     <style>
-        .table th, .table td { vertical-align: middle; }
-        .btn-group-sm > .btn { padding: 0.25rem 0.5rem; }
-        .card { margin-bottom: 20px; }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .btn-group-sm > .btn {
+            padding: 0.25rem 0.5rem;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: white !important;
+        }
+
+        .pagination .page-link {
+            color: #0d6efd;
+        }
     </style>
+}
+
+@section Scripts {
+    <script>
+        document.getElementById('pageSizeSelect').addEventListener('change', function() {
+            const pageSize = this.value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('pageSize', pageSize);
+            url.searchParams.set('pageNumber', 1); // Reset to first page
+            window.location.href = url.toString();
+        });
+    </script>
 }

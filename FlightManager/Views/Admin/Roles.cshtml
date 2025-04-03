@@ -1,4 +1,5 @@
-﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityRole>
+﻿@using FlightManager.Data.Models
+@model PaginatedList<Microsoft.AspNetCore.Identity.IdentityRole>
 
 @{
     ViewData["Title"] = "Role Management";
@@ -28,39 +29,127 @@
     }
 </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Role Name</th>
-            <th>Users</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
             <tr>
-                <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                <td>
-                    @{
-                        var userCount = ViewBag.RoleUserCounts[item.Id];
-                        if (userCount > 999)
-                        {
-                            <span>999+</span>
-                        }
-                        else
-                        {
-                            <span>@userCount</span>
-                        }
-                    }
-                </td>
-                <td>
-                    @if (userCount == 0 && User.IsInRole("Owner"))
-                    {
-                        <a asp-action="DeleteRole" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
-                    }
-                </td>
+                <th>Role Name</th>
+                <th>Users</th>
+                <th>Actions</th>
             </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                    <td>
+                        @{
+                            var userCount = ViewBag.RoleUserCounts[item.Id];
+                            if (userCount > 999)
+                            {
+                                <span>999+</span>
+                            }
+                            else
+                            {
+                                <span>@userCount</span>
+                            }
+                        }
+                    </td>
+                    <td>
+                        @if (userCount == 0 && User.IsInRole("Owner"))
+                        {
+                            <a asp-action="DeleteRole" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination controls -->
+<div class="row mt-3">
+    <div class="col-md-6">
+        <div class="d-flex align-items-center">
+            <span class="me-2">Show:</span>
+            <select class="form-select form-select-sm w-auto" id="pageSizeSelect">
+                @foreach (var size in ViewBag.AvailablePageSizes)
+                {
+                    <option value="@size" selected="@(size == ViewBag.CurrentPageSize)">@size</option>
+                }
+            </select>
+            <span class="ms-2">items per page</span>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-end">
+                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Roles"
+                       asp-route-pageNumber="@(Model.PageIndex - 1)"
+                       asp-route-pageSize="@ViewBag.CurrentPageSize">
+                        Previous
+                    </a>
+                </li>
+
+                @for (var i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Roles"
+                           asp-route-pageNumber="@i"
+                           asp-route-pageSize="@ViewBag.CurrentPageSize">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Roles"
+                       asp-route-pageNumber="@(Model.PageIndex + 1)"
+                       asp-route-pageSize="@ViewBag.CurrentPageSize">
+                        Next
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+@section StyleLinks {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+}
+@section Styles {
+    <style>
+        .table th, .table td {
+            vertical-align: middle;
         }
-    </tbody>
-</table>
+
+        .pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: white !important;
+        }
+
+        .pagination .page-link {
+            color: #0d6efd;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        document.getElementById('pageSizeSelect').addEventListener('change', function() {
+            const pageSize = this.value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('pageSize', pageSize);
+            url.searchParams.set('pageNumber', 1); // Reset to first page
+            window.location.href = url.toString();
+        });
+    </script>
+}

@@ -1,56 +1,117 @@
-﻿@model FlightManager.Data.Models.Reservation
+﻿@using FlightManager.Data.Models
+@model FlightManager.Data.Models.Reservation
 
 @{
     ViewData["Title"] = "Edit Reservation";
 }
 
-<h1>Edit Reservation</h1>
-<hr />
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fas fa-edit"></i> Edit Reservation #@Model.Id</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="FlightId" class="control-label">Flight</label>
+                            <select asp-for="FlightId" class="form-control" asp-items="ViewBag.FlightId"></select>
+                            <span asp-validation-for="FlightId" class="text-danger"></span>
+                        </div>
 
-            <div class="form-group">
-                <label asp-for="FlightId" class="control-label">Flight</label>
-                <select asp-for="FlightId" class="form-control" asp-items="ViewBag.FlightId">
-                    <option value="">-- Select Flight --</option>
-                </select>
-                <span asp-validation-for="FlightId" class="text-danger"></span>
-            </div>
+                        <div class="form-group">
+                            <label asp-for="ReservationUserId" class="control-label">Passenger</label>
+                            <select asp-for="ReservationUserId" class="form-control" asp-items="ViewBag.ReservationUserId"></select>
+                            <span asp-validation-for="ReservationUserId" class="text-danger"></span>
+                        </div>
 
-            <div class="form-group">
-                <label asp-for="ReservationUserId" class="control-label">Passenger</label>
-                <select asp-for="ReservationUserId" class="form-control" asp-items="ViewBag.ReservationUserId">
-                    <option value="">-- Select Passenger --</option>
-                </select>
-                <span asp-validation-for="ReservationUserId" class="text-danger"></span>
-            </div>
+                        <div class="form-group">
+                            <label asp-for="Nationality" class="control-label"></label>
+                            <input asp-for="Nationality" class="form-control" />
+                            <span asp-validation-for="Nationality" class="text-danger"></span>
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label asp-for="Nationality" class="control-label"></label>
-                <input asp-for="Nationality" class="form-control" />
-                <span asp-validation-for="Nationality" class="text-danger"></span>
-            </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label asp-for="TicketType" class="control-label">Ticket Type</label>
+                            <select asp-for="TicketType" class="form-control">
+                                <option value="@TicketType.Economy">Regular</option>
+                                <option value="@TicketType.Business">Business</option>
+                            </select>
+                            <span asp-validation-for="TicketType" class="text-danger"></span>
+                        </div>
 
-            <div class="form-group">
-                <label asp-for="TicketType" class="control-label">Class</label>
-                <select asp-for="TicketType" class="form-control">
-                    <option value="Economy">Economy Class</option>
-                    <option value="Business">Business Class</option>
-                </select>
-                <span asp-validation-for="TicketType" class="text-danger"></span>
-            </div>
+                        <div class="form-group">
+                            <label class="control-label">Confirmation Status</label>
+                            <div class="form-control-plaintext">
+                                @if (Model.IsConfirmed)
+                                {
+                                    <span class="badge bg-success">Confirmed</span>
+                                    <small class="text-muted">Confirmed on @Model.ConfirmedAt?.ToString("g")</small>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">Pending Confirmation</span>
+                                    <small class="text-muted">Created on @Model.CreatedAt.ToString("g")</small>
+                                    @if (!string.IsNullOrEmpty(Model.ConfirmationToken))
+                                    {
+                                        <div class="mt-2">
+                                            <small class="text-muted">Confirmation Token: @Model.ConfirmationToken</small>
+                                            <br>
+                                            <small>
+                                                <a href="@Url.Action("ConfirmReservation", new { id = Model.Id, token = Model.ConfirmationToken })">
+                                                    Resend Confirmation Email
+                                                </a>
+                                            </small>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
 
-            <div class="form-group mt-3">
-                <input type="submit" value="Save" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-            </div>
-        </form>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="form-group form-check">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" asp-for="IsConfirmed" />
+                                    @Html.DisplayNameFor(model => model.IsConfirmed)
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+@section Styles {
+    <style>
+        .form-control-plaintext {
+            min-height: calc(1.5em + 1rem + 2px);
+            padding: 0.5rem 0;
+        }
+
+        .badge {
+            font-size: 0.9em;
+            padding: 0.35em 0.65em;
+        }
+    </style>
+}
 
 @section Scripts {
     @{

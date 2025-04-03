@@ -28,10 +28,39 @@ public class ReservationUsersController : Controller
     /// Displays a list of reservation users.
     /// </summary>
     /// <returns>The users list view.</returns>
-    public async Task<IActionResult> Index()
+    [Authorize(Roles = "Admin,Employee")]
+    public async Task<IActionResult> Index(
+        string searchString,
+        int? pageNumber,
+        int? pageSize)
     {
-        var applicationDbContext = _context.ReservationUsers.Include(r => r.AppUser);
-        return View(await applicationDbContext.ToListAsync());
+        int currentPageSize = pageSize ?? 10;
+        int currentPageNumber = pageNumber ?? 1;
+
+        ViewBag.CurrentPageSize = currentPageSize;
+        ViewBag.AvailablePageSizes = new List<int> { 5, 10, 20, 50 };
+        ViewBag.CurrentFilter = searchString;
+
+        var usersQuery = _context.ReservationUsers
+            .Include(u => u.AppUser)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            usersQuery = usersQuery.Where(u =>
+                u.UserName.Contains(searchString) ||
+                u.FirstName.Contains(searchString) ||
+                u.LastName.Contains(searchString) ||
+                u.Email.Contains(searchString) || // Added email to search
+                (u.AppUser != null && u.AppUser.Email.Contains(searchString)));
+        }
+
+        var paginatedUsers = await PaginatedList<ReservationUser>.CreateAsync(
+            usersQuery.AsNoTracking().OrderBy(u => u.LastName),
+            currentPageNumber,
+            currentPageSize);
+
+        return View(paginatedUsers);
     }
 
     /// <summary>
@@ -75,7 +104,7 @@ public class ReservationUsersController : Controller
     /// <returns>Redirects to index view on success or returns creation view with errors.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,UserName,FirstName,MiddleName,LastName,EGN,Address,PhoneNumber,AppUserId")] ReservationUser reservationUser)
+    public async Task<IActionResult> Create([Bind("Id,UserName,FirstName,MiddleName,LastName,EGN,Address,PhoneNumber,Email,AppUserId")] ReservationUser reservationUser)
     {
         if (ModelState.IsValid)
         {
@@ -116,7 +145,7 @@ public class ReservationUsersController : Controller
     /// <returns>Redirects to index view on success or returns edit view with errors.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,FirstName,MiddleName,LastName,EGN,Address,PhoneNumber,AppUserId")] ReservationUser reservationUser)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,FirstName,MiddleName,LastName,EGN,Address,PhoneNumber,Email,AppUserId")] ReservationUser reservationUser)
     {
         if (id != reservationUser.Id)
         {

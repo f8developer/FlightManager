@@ -114,6 +114,54 @@
         <member name="M:FlightManager.Data.Migrations.CheckForChanges.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:FlightManager.Data.Migrations.AddEmailToReservationUser">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.AddEmailToReservationUser.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.AddEmailToReservationUser.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.AddEmailToReservationUser.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:FlightManager.Data.Migrations.FixAgain">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.FixAgain.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.FixAgain.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.FixAgain.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:FlightManager.Data.Migrations.AddReservationConfirmation">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.AddReservationConfirmation.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.AddReservationConfirmation.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.AddReservationConfirmation.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:FlightManager.Data.Migrations.AddReservationTimestamps">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.AddReservationTimestamps.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.AddReservationTimestamps.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FlightManager.Data.Migrations.AddReservationTimestamps.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:FlightManager.Data.Models.AppUser">
             <summary>
             Represents an application user that extends the IdentityUser class.
@@ -216,6 +264,11 @@
             Gets or sets the unique identifier of this reservation.
             </summary>
         </member>
+        <member name="P:FlightManager.Data.Models.Reservation.CreatedAt">
+            <summary>
+            Gets or sets the date and time when the reservation was created.
+            </summary>
+        </member>
         <member name="P:FlightManager.Data.Models.Reservation.ReservationUserId">
             <summary>
             Gets or sets the ID of the user who made this reservation.
@@ -244,6 +297,21 @@
         <member name="P:FlightManager.Data.Models.Reservation.TicketType">
             <summary>
             Gets or sets the type of ticket for this reservation.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Data.Models.Reservation.IsConfirmed">
+            <summary>
+            Gets or sets whether the reservation has been confirmed via email.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Data.Models.Reservation.ConfirmationToken">
+            <summary>
+            Gets or sets the confirmation token for email verification.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Data.Models.Reservation.ConfirmedAt">
+            <summary>
+            Gets or sets the date and time when the reservation was confirmed.
             </summary>
         </member>
         <member name="M:FlightManager.Data.Models.Reservation.Validate(System.ComponentModel.DataAnnotations.ValidationContext)">
