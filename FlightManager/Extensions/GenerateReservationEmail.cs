@@ -5,8 +5,21 @@ using FlightManager.Extensions.Services;
 
 namespace FlightManager.Extensions
 {
+    /// <summary>
+    /// Provides methods for generating HTML email content for flight reservations.
+    /// </summary>
     public static class GenerateReservationEmail
     {
+        /// <summary>
+        /// Generates an HTML email for an individual flight reservation confirmation.
+        /// </summary>
+        /// <param name="reservation">The reservation details.</param>
+        /// <param name="flight">The flight information.</param>
+        /// <param name="user">The reservation user details.</param>
+        /// <param name="confirmationUrl">The URL for confirming the reservation.</param>
+        /// <param name="detailsUrl">The URL for viewing reservation details.</param>
+        /// <param name="templateService">The email template service.</param>
+        /// <returns>An HTML-formatted email string with populated reservation data.</returns>
         public static string ReservationEmail(
             Reservation reservation,
             Flight flight,
@@ -42,6 +55,17 @@ namespace FlightManager.Extensions
             return templateService.GetTemplate("ReservationConfirmation.html", replacements);
         }
 
+        /// <summary>
+        /// Generates an HTML email for a group flight reservation confirmation.
+        /// </summary>
+        /// <param name="reservations">List of reservations in the group.</param>
+        /// <param name="flight">The flight information.</param>
+        /// <param name="passengers">List of passenger details.</param>
+        /// <param name="confirmationUrl">The URL for confirming the group reservation.</param>
+        /// <param name="detailsUrl">The base URL for viewing reservation details.</param>
+        /// <param name="templateService">The email template service.</param>
+        /// <returns>An HTML-formatted email string with populated group reservation data.</returns>
+        /// <exception cref="ArgumentException">Thrown when reservations or passengers lists are empty or counts don't match.</exception>
         public static string GroupReservationEmail(
             List<Reservation> reservations,
             Flight flight,
@@ -110,6 +134,14 @@ namespace FlightManager.Extensions
             return templateService.GetTemplate("GroupReservationConfirmation.html", replacements);
         }
 
+        /// <summary>
+        /// Formats a TimeSpan duration into a human-readable string.
+        /// </summary>
+        /// <param name="duration">The time duration to format.</param>
+        /// <returns>
+        /// A formatted string in "Xd Xh Xm" format for durations over 24 hours,
+        /// or "Xh Xm" format for shorter durations.
+        /// </returns>
         private static string FormatDuration(TimeSpan duration)
         {
             if (duration.TotalHours >= 24)

@@ -29,9 +29,16 @@ public class FlightsController : Controller
     }
 
     /// <summary>
-    /// Displays a list of all flights.
+    /// Displays a paginated list of flights with optional filtering by location and date range.
+    /// Applies smart date matching when both departure and arrival dates are provided.
     /// </summary>
-    /// <returns>The flights list view.</returns>
+    /// <param name="fromLocation">Optional filter for departure location.</param>
+    /// <param name="toLocation">Optional filter for arrival location.</param>
+    /// <param name="departureDate">Optional filter for departure date.</param>
+    /// <param name="arrivalDate">Optional filter for arrival date.</param>
+    /// <param name="pageNumber">Current page number for pagination.</param>
+    /// <param name="pageSize">Number of items per page.</param>
+    /// <returns>A view containing the filtered and paginated flight list.</returns>
     [AllowAnonymous]
     public async Task<IActionResult> Index(
         string fromLocation,
@@ -128,6 +135,12 @@ public class FlightsController : Controller
         return View(paginatedFlights);
     }
 
+    /// <summary>
+    /// Provides location suggestions for autocomplete functionality in flight search forms.
+    /// </summary>
+    /// <param name="term">The search term entered by the user.</param>
+    /// <param name="isDeparture">True if searching for departure locations, false for arrival locations.</param>
+    /// <returns>A JSON list of matching location suggestions.</returns>
     [AllowAnonymous]
     public async Task<IActionResult> GetLocationSuggestions(string term, bool isDeparture)
     {
@@ -164,6 +177,30 @@ public class FlightsController : Controller
         {
             return NotFound();
         }
+
+        return View(flight);
+    }
+
+    /// <summary>
+    /// Displays the flight creation form.
+    /// </summary>
+    /// <returns>The flight creation view with an empty flight model.</returns>
+    [Authorize(Roles = "Admin")]
+    public IActionResult Create()
+    {
+        // Initialize with default values
+        var flight = new Flight
+        {
+            FromLocation = string.Empty,
+            ToLocation = string.Empty,
+            AircraftType = string.Empty,
+            AircraftNumber = string.Empty,
+            PilotName = string.Empty,
+            DepartureTime = DateTime.UtcNow.AddHours(1), // Default to 1 hour from now
+            ArrivalTime = DateTime.UtcNow.AddHours(2),   // Default to 2 hours from now
+            PassengerCapacity = 100,                  // Default capacity
+            BusinessClassCapacity = 20                // Default business class capacity
+        };
 
         return View(flight);
     }
@@ -409,10 +446,12 @@ public class FlightsController : Controller
     }
 
     /// <summary>
-    /// Displays a list of passengers for a specific flight.
+    /// Displays a paginated list of passengers for a specific flight, sorted by ticket type and confirmation status.
     /// </summary>
-    /// <param name="id">The flight ID.</param>
-    /// <returns>The passengers list view or NotFound if flight doesn't exist.</returns>
+    /// <param name="id">The ID of the flight to view passengers for.</param>
+    /// <param name="pageNumber">Current page number for pagination (default: 1).</param>
+    /// <param name="pageSize">Number of passengers per page (default: 5).</param>
+    /// <returns>A view containing flight details and paginated passenger list.</returns>
     [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> Passengers(int id, int pageNumber = 1, int pageSize = 5)
     {
@@ -451,6 +490,12 @@ public class FlightsController : Controller
 
         return View(viewModel);
     }
+
+    /// <summary>
+    /// Checks if a flight with the specified ID exists in the database.
+    /// </summary>
+    /// <param name="id">The ID of the flight to check.</param>
+    /// <returns>True if the flight exists, false otherwise.</returns>
     private bool FlightExists(int id)
     {
         return _context.Flights.Any(e => e.Id == id);

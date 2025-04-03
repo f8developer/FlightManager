@@ -1,206 +1,178 @@
-# FlightManager Documentation
+# FlightManager System Documentation
 
 ## Table of Contents
-1. [Controllers](#controllers)  
-   1.1 [AdminController](#admincontroller)  
-   1.2 [FlightsController](#flightscontroller)  
-   1.3 [HomeController](#homecontroller)  
-   1.4 [ReservationsController](#reservationscontroller)  
-   1.5 [ReservationUsersController](#reservationuserscontroller)  
-2. [Data Models](#data-models)  
-   2.1 [AppUser](#appuser)  
-   2.2 [Flight](#flight)  
-   2.3 [Reservation](#reservation)  
-   2.4 [ReservationUser](#reservationuser)  
-3. [Database Context](#database-context)  
-   3.1 [ApplicationDbContext](#applicationdbcontext)  
-4. [Unit Tests](#unit-tests)  
-   4. [ApplicationDbContext Tests](#applicationdbcontext-tests)  
-   4.2 [Flight Model Tests](#flight-model-tests)  
-   4.3 [Reservation Tests](#reservation-tests)  
-   4.4 [ReservationUser Tests](#reservationuser-tests)  
-5. [Configuration](#configuration)  
-   5.1 [OwnerSettings](#ownersettings)  
+1. [Core Components](#core-components)
+2. [Controllers](#controllers)
+3. [Data Models](#data-models)
+4. [Services](#services)
+5. [Database Layer](#database-layer)
+6. [Configuration](#configuration)
+7. [Testing](#testing)
+
+---
+
+## Core Components
+
+### Application Structure
+```mermaid
+graph TD
+    A[Controllers] --> B[Services]
+    A --> C[Data Models]
+    B --> D[Email Integration]
+    B --> E[Background Tasks]
+    C --> F[Database Context]
+```
 
 ---
 
 ## Controllers
 
 ### AdminController
-Handles administrative operations (user/role management).
+**Responsibilities**: User and role management
 
-#### Methods
-| Method | Parameters | Description |
-|--------|------------|-------------|
-| `Index` | `string email`, `string role` | Returns filtered users by email/role. |
-| `Roles` | - | Lists all roles with user counts. |
-| `Details` | `string id` | Shows user details. |
-| `Create` | `AppUser`, `password`, `confirmPassword`, `List<string> selectedRoles` | Creates a user with roles. |
-| `Edit` | `string id`, `AppUser`, `List<string> selectedRoles` | Updates user data and roles. |
-| `Delete` | `string id` | Deletes a user. |
-| `CreateRole` | `IdentityRole role` | Creates a new role. |
-| `DeleteRole` | `string id` | Deletes a role. |
-
----
+| Method | Parameters | Description | Exceptions |
+|--------|------------|-------------|------------|
+| `Roles()` | `pageNumber`, `pageSize` | Paginated role list with user counts | - |
+| `CreateUser()` | `AppUser`, password, roles | Creates user with role assignments | `InvalidOperationException` |
+| `DeleteRole()` | `roleId` | Removes role if unused | `InvalidOperationException` |
 
 ### FlightsController
-Manages flight operations.
+**Features**: Flight operations with smart filtering
 
-#### Methods
-| Method | Parameters | Description |
-|--------|------------|-------------|
-| `Index` | - | Lists all flights. |
-| `Details` | `int? id` | Shows flight details. |
-| `Create` | `Flight flight` | Creates a flight. |
-| `Edit` | `int id`, `Flight flight` | Updates flight data. |
-| `Delete` | `int id` | Deletes a flight. |
-| `Passengers` | `int id` | Lists passengers for a flight. |
-
----
-
-### HomeController
-Handles general views (home, privacy, error).
-
-#### Methods
-| Method | Description |
-|--------|-------------|
-| `Index` | Returns home page. |
-| `Privacy` | Returns privacy policy. |
-| `Error` | Returns error page. |
-
----
+| Method | Key Functionality |
+|--------|-------------------|
+| `GetLocationSuggestions()` | Autocomplete for flight search |
+| `Passengers()` | Paginated passenger manifests |
+| `Create()` | Flight creation with capacity validation |
 
 ### ReservationsController
-Manages flight reservations.
-
-#### Methods
-| Method | Parameters | Description |
-|--------|------------|-------------|
-| `Index` | `string id`, `username`, `firstName`, `lastName` | Lists filtered reservations. |
-| `Create` | `Reservation reservation` | Creates a reservation. |
-| `Edit` | `int id`, `Reservation reservation` | Updates reservation data. |
-| `Delete` | `int id`, `bool confirmDeleteUser` | Deletes a reservation. |
-| `CheckReservation` | `string egn`, `int flightId` | Validates reservation uniqueness. |
-
----
+**Workflows**:
+```mermaid
+sequenceDiagram
+    User->>Controller: Create Reservation
+    Controller->>EmailService: Send Confirmation
+    EmailService->>User: Email with Token
+    User->>Controller: Confirm via Token
+    Controller->>Database: Mark Confirmed
+```
 
 ### ReservationUsersController
-Manages reservation-associated users.
-
-#### Methods
-| Method | Parameters | Description |
-|--------|------------|-------------|
-| `Index` | - | Lists all reservation users. |
-| `Create` | `ReservationUser reservationUser` | Creates a reservation user. |
-| `Edit` | `int id`, `ReservationUser reservationUser` | Updates reservation user data. |
-| `Delete` | `int id` | Deletes a reservation user. |
+**Special Cases**:
+- Handles both registered users and guest reservations
+- Automatic cleanup of orphaned records
 
 ---
 
 ## Data Models
 
-### AppUser
-Extends `IdentityUser` for authentication.  
+### Flight Entity
 **Properties**:
-- `ReservationUsers`: Collection of linked `ReservationUser` entities.
+- Required: `FromLocation`, `ToLocation`, `PilotName`
+- Validation: `ArrivalTime > DepartureTime`
+- Capacity: `BusinessClassCapacity ≤ PassengerCapacity`
+
+**Relationships**:
+```mermaid
+erDiagram
+    FLIGHT ||--o{ RESERVATION : has
+    RESERVATION }|--|| RESERVATION_USER : belongs_to
+```
+
+### Reservation System
+**States**:
+```mermaid
+stateDiagram
+    [*] --> Pending
+    Pending --> Confirmed: Email Verification
+    Pending --> Expired: 24h timeout
+```
+
+### Enums
+- `TicketType`: `Regular`, `BusinessClass`
 
 ---
 
-### Flight
-Represents a flight with validation rules.  
-**Properties**:
-| Property | Validation Rules |
-|----------|------------------|
-| `FromLocation` | Required |
-| `ToLocation` | Required |
-| `DepartureTime` | Required, must be before `ArrivalTime` |
-| `BusinessClassCapacity` | Must not exceed `PassengerCapacity` |
-| `Reservations` | Collection of reservations |
+## Services
 
-**Validation**:  
-- Ensures `ArrivalTime > DepartureTime`.  
-- Ensures `BusinessClassCapacity ≤ PassengerCapacity`.
+### Email Services
 
----
+#### BrevoEmailService
+**Features**:
+- API Key: Loaded from `credentials.json`
+- Methods: `SendEmail()`, `ConvertHtmlToPlainText()`
+- Templates: Uses `EmailTemplateService`
 
-### Reservation
-Represents a flight reservation.  
-**Properties**:
-- `ReservationUser`: Associated user (required).  
-- `FlightId`: Linked flight ID (required).  
-- `TicketType`: Enum (`Regular`, `Business`).  
+#### EmailTemplateService
+**Workflow**:
+1. Loads HTML templates from `/Templates`
+2. Replaces placeholders (`{PropertyName}`)
+3. Falls back to plain text
 
-**Validation**:  
-- Checks for duplicate reservations (same EGN + flight).
+### Background Services
 
----
-
-### ReservationUser
-Represents a user making reservations.  
-**Properties**:
-| Property | Validation Rules |
-|----------|------------------|
-| `EGN` | 10-digit format |
-| `PhoneNumber` | Valid format (e.g., `+359xxxxxxxxx`) |
-| `AppUser` | Linked `AppUser` entity |
+#### ReservationCleanupService
+**Logic Flow**:
+```mermaid
+flowchart TB
+    A[Start] --> B[Get Unconfirmed Reservations]
+    B --> C{>24h Old?}
+    C -->|Yes| D[Delete Reservation]
+    D --> E{Last Reservation?}
+    E -->|Yes| F[Delete User]
+```
 
 ---
 
-## Database Context
+## Database Layer
 
 ### ApplicationDbContext
-Extends `IdentityDbContext<AppUser>` for EF Core.  
+**Key Configurations**:
+- Automatic timestamping (`CreatedAt`)
+- Orphaned user cleanup
+- Enum storage as strings
 
-**DbSets**:
-- `Flights`  
-- `Reservations`  
-- `ReservationUsers`  
-
-**Key Features**:
-- Automatically deletes orphaned `ReservationUser` entries.  
-- Configures relationships:  
-  ```csharp
-  modelBuilder.Entity<Reservation>()
-      .HasOne(r => r.ReservationUser)
-      .WithMany(u => u.Reservations);
-  ```
-
----
-
-## Unit Tests
-
-### ApplicationDbContext Tests
-1. **Orphaned ReservationUser Cleanup**:  
-   - Removes `ReservationUser` when last linked reservation is deleted.  
-2. **Enum Storage**:  
-   - Verifies `TicketType` is stored correctly.  
-
-### Flight Model Tests
-1. **Validation Failures**:  
-   - Arrival before departure.  
-   - Business class exceeds total capacity.  
-2. **Valid Data**:  
-   - Passes with correct inputs.  
-
-### Reservation Tests
-1. **Uniqueness Validation**:  
-   - Fails on duplicate EGN + flight.  
-   - Fails if DB context is unavailable.  
-
-### ReservationUser Tests
-1. **Data Validation**:  
-   - Fails on invalid EGN/phone format.  
-   - Passes with valid data.  
+**Migrations**:
+1. `AddReservationConfirmation`: Added token system
+2. `AddReservationTimestamps`: Created audit fields
 
 ---
 
 ## Configuration
 
 ### OwnerSettings
-Stores owner credentials for initial setup.  
-**Properties**:
-- `OwnerEmail`: Email address.  
-- `OwnerPassword`: Password (required).  
+```yaml
+OwnerEmail: "admin@example.com"
+OwnerPassword: "SecurePassword123!" # Required
+```
 
-**Usage**:  
-Automatically creates an owner user with `Admin` and `Employee` roles on startup.
+### ReservationCleanupSettings
+```yaml
+CleanupIntervalHours: 1
+ReservationExpiryHours: 24
+```
+
+---
+
+## Testing
+
+### Test Coverage
+
+| Test Class | Key Validations |
+|------------|-----------------|
+| `FlightTests` | Date ordering, capacity rules |
+| `ReservationTests` | Uniqueness constraints |
+| `EmailServiceTests` | Template handling |
+| `CleanupServiceTests` | Orphan removal logic |
+
+### Test Architecture
+```mermaid
+classDiagram
+    class TestContext{
+        +InMemoryDatabase
+        +MockServices
+    }
+    class FlightTests{
+        +ValidateDateOrdering()
+    }
+    TestContext <|-- FlightTests
+```

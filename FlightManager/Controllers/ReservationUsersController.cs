@@ -25,9 +25,13 @@ public class ReservationUsersController : Controller
     }
 
     /// <summary>
-    /// Displays a list of reservation users.
+    /// Displays a paginated list of reservation users with optional search filtering.
+    /// Includes both standalone reservation users and those linked to application users.
     /// </summary>
-    /// <returns>The users list view.</returns>
+    /// <param name="searchString">Optional search term to filter users by name, username, or email.</param>
+    /// <param name="pageNumber">Current page number for pagination.</param>
+    /// <param name="pageSize">Number of items per page.</param>
+    /// <returns>A view containing the filtered and paginated user list.</returns>
     [Authorize(Roles = "Admin,Employee")]
     public async Task<IActionResult> Index(
         string searchString,
@@ -98,10 +102,11 @@ public class ReservationUsersController : Controller
     }
 
     /// <summary>
-    /// Handles reservation user creation form submission.
+    /// Handles the creation of a new reservation user with the provided data.
+    /// Validates the model and saves to database if valid.
     /// </summary>
-    /// <param name="reservationUser">The user data to create.</param>
-    /// <returns>Redirects to index view on success or returns creation view with errors.</returns>
+    /// <param name="reservationUser">The reservation user data to create.</param>
+    /// <returns>Redirects to index on success, or returns the creation view with validation errors.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,UserName,FirstName,MiddleName,LastName,EGN,Address,PhoneNumber,Email,AppUserId")] ReservationUser reservationUser)
@@ -200,10 +205,11 @@ public class ReservationUsersController : Controller
     }
 
     /// <summary>
-    /// Handles reservation user deletion confirmation.
+    /// Permanently deletes a reservation user after confirmation.
+    /// Also removes any associated reservations if they exist.
     /// </summary>
-    /// <param name="id">The user ID to delete.</param>
-    /// <returns>Redirects to index view.</returns>
+    /// <param name="id">The ID of the user to delete.</param>
+    /// <returns>Redirects to the index view after deletion.</returns>
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
@@ -218,6 +224,11 @@ public class ReservationUsersController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    /// <summary>
+    /// Checks if a reservation user with the specified ID exists in the database.
+    /// </summary>
+    /// <param name="id">The ID of the reservation user to check.</param>
+    /// <returns>True if the user exists, false otherwise.</returns>
     private bool ReservationUserExists(int id)
     {
         return _context.ReservationUsers.Any(e => e.Id == id);

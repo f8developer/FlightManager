@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FlightManager.Data;
+﻿using FlightManager.Data;
 using FlightManager.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -78,8 +74,11 @@ namespace FlightManager.Controllers
         }
 
         /// <summary>
-        /// Displays a list of all roles with pagination.
+        /// Displays a paginated list of all roles in the system with user counts for each role.
         /// </summary>
+        /// <param name="pageNumber">The current page number for pagination.</param>
+        /// <param name="pageSize">The number of items per page for pagination.</param>
+        /// <returns>A view containing the paginated list of roles.</returns>
         public async Task<IActionResult> Roles(int? pageNumber, int? pageSize)
         {
             int currentPageSize = pageSize ?? 10;
@@ -134,8 +133,12 @@ namespace FlightManager.Controllers
         }
 
         /// <summary>
-        /// Handles user creation.
+        /// Handles the creation of a new user with the specified details and roles.
         /// </summary>
+        /// <param name="user">The user object containing basic information.</param>
+        /// <param name="password">The password for the new user.</param>
+        /// <param name="confirmPassword">The password confirmation which must match the password.</param>
+        /// <param name="selectedRoles">List of role names to assign to the new user.</param>
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Owner")]
@@ -197,8 +200,11 @@ namespace FlightManager.Controllers
         }
 
         /// <summary>
-        /// Handles user updates.
+        /// Handles updates to user information and role assignments.
         /// </summary>
+        /// <param name="id">The ID of the user to edit.</param>
+        /// <param name="user">The user object containing updated information.</param>
+        /// <param name="selectedRoles">List of role names to assign to the user.</param>
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Owner")]
@@ -259,8 +265,10 @@ namespace FlightManager.Controllers
         }
 
         /// <summary>
-        /// Handles user deletion.
+        /// Permanently deletes a user from the system after confirmation.
         /// </summary>
+        /// <param name="id">The ID of the user to delete.</param>
+        /// <returns>Redirects to Index with success or error message.</returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Owner")]
@@ -333,8 +341,10 @@ namespace FlightManager.Controllers
         }
 
         /// <summary>
-        /// Handles role deletion.
+        /// Permanently deletes a role from the system after confirmation, if no users are assigned to it.
         /// </summary>
+        /// <param name="id">The ID of the role to delete.</param>
+        /// <returns>Redirects to Roles view with success or error message.</returns>
         [HttpPost, ActionName("DeleteRole")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Owner")]
@@ -361,11 +371,6 @@ namespace FlightManager.Controllers
             }
 
             return RedirectToAction(nameof(Roles));
-        }
-
-        private async Task<bool> AppUserExists(string id)
-        {
-            return await _userManager.FindByIdAsync(id) != null;
         }
     }
 }

@@ -50,10 +50,9 @@ public class ReservationsController : Controller
     /// Displays a list of reservations with optional filtering.
     /// </summary>
     /// <param name="id">User ID filter.</param>
-    /// <param name="username">Username filter.</param>
-    /// <param name="firstName">First name filter.</param>
-    /// <param name="lastName">Last name filter.</param>
-    /// <returns>The reservations list view.</returns>
+    /// <param name="pageNumber">Number of pages.</param>
+    /// <param name="pageSize">Page Size.</param>
+    /// <returns>The index view.</returns>
     [AllowAnonymous]
     public async Task<IActionResult> Index(
         string id,
@@ -338,6 +337,12 @@ public class ReservationsController : Controller
         return View(reservation);
     }
 
+    /// <summary>
+    /// Confirms a reservation using the provided token.
+    /// </summary>
+    /// <param name="id">The reservation ID to confirm.</param>
+    /// <param name="token">The confirmation token.</param>
+    /// <returns>Redirects to details view on success or NotFound if invalid.</returns>
     [AllowAnonymous]
     public async Task<IActionResult> ConfirmReservation(int id, string token)
     {
@@ -538,6 +543,10 @@ public class ReservationsController : Controller
         return Json(new { exists });
     }
 
+    /// <summary>
+    /// Displays the group reservation creation form with available flights.
+    /// </summary>
+    /// <returns>The group reservation creation view.</returns>
     [AllowAnonymous]
     public IActionResult GroupCreate()
     {
@@ -580,6 +589,11 @@ public class ReservationsController : Controller
         return View(model);
     }
 
+    /// <summary>
+    /// Handles group reservation creation for multiple passengers.
+    /// </summary>
+    /// <param name="model">The group reservation data.</param>
+    /// <returns>Redirects with success message or returns view with errors.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
     [AllowAnonymous]
@@ -780,6 +794,12 @@ public class ReservationsController : Controller
         return View(model);
     }
 
+    /// <summary>
+    /// Confirms a group reservation using the provided token.
+    /// </summary>
+    /// <param name="reservationIds">Comma-separated list of reservation IDs.</param>
+    /// <param name="token">The confirmation token.</param>
+    /// <returns>Redirects to confirmation view on success or NotFound if invalid.</returns>
     [AllowAnonymous]
     public async Task<IActionResult> ConfirmGroupReservation(string reservationIds, string token)
     {
@@ -811,6 +831,11 @@ public class ReservationsController : Controller
         return RedirectToAction("GroupConfirmation", new { reservationIds });
     }
 
+    /// <summary>
+    /// Displays the group reservation confirmation details.
+    /// </summary>
+    /// <param name="reservationIds">Comma-separated list of confirmed reservation IDs.</param>
+    /// <returns>The group confirmation view or NotFound.</returns>
     [AllowAnonymous]
     public async Task<IActionResult> GroupConfirmation(string reservationIds)
     {
@@ -834,6 +859,11 @@ public class ReservationsController : Controller
         return View(reservations);
     }
 
+    /// <summary>
+    /// Checks if a reservation with the specified ID exists.
+    /// </summary>
+    /// <param name="id">The reservation ID to check.</param>
+    /// <returns>True if the reservation exists, false otherwise.</returns>
     private bool ReservationExists(int id)
     {
         return _context.Reservations.Any(e => e.Id == id);

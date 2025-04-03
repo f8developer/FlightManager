@@ -57,9 +57,10 @@ public class HomeController : Controller
     }
 
     /// <summary>
-    /// Displays the error page.
+    /// Displays the error page with diagnostic information.
+    /// The response is not cached to ensure accurate error reporting.
     /// </summary>
-    /// <returns>The error view.</returns>
+    /// <returns>An error view containing the current request ID for troubleshooting.</returns>
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
@@ -68,11 +69,22 @@ public class HomeController : Controller
 }
 
 /// <summary>
-/// ViewModel for the home page statistics.
+/// Represents the data model for the home page view, containing flight statistics and upcoming flights.
 /// </summary>
 public class HomeViewModel
 {
+    /// <summary>
+    /// Gets or sets the total number of flights in the system.
+    /// </summary>
     public int TotalFlights { get; set; }
+
+    /// <summary>
+    /// Gets or sets the sum of all passenger capacities across all flights.
+    /// </summary>
     public int TotalCapacity { get; set; }
+
+    /// <summary>
+    /// Gets or sets the list of upcoming flights (next 5 by departure time).
+    /// </summary>
     public List<Flight>? UpcomingFlights { get; set; }
 }
