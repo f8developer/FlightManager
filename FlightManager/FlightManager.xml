@@ -1,0 +1,838 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FlightManager</name>
+    </assembly>
+    <members>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.LoginModel.Input">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.LoginModel.ExternalLogins">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.LoginModel.ReturnUrl">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.LoginModel.ErrorMessage">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="T:FlightManager.Areas.Identity.Pages.Account.LoginModel.InputModel">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.LoginModel.InputModel.Email">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.LoginModel.InputModel.Password">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.LoginModel.InputModel.RememberMe">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.Manage.IndexModel.Username">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.Manage.IndexModel.StatusMessage">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.Manage.IndexModel.Input">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="T:FlightManager.Areas.Identity.Pages.Account.Manage.IndexModel.InputModel">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.Manage.IndexModel.InputModel.PhoneNumber">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="T:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.Index">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.Email">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.ChangePassword">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.DownloadPersonalData">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.DeletePersonalData">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.ExternalLogins">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.PersonalData">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.TwoFactorAuthentication">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.IndexNavClass(Microsoft.AspNetCore.Mvc.Rendering.ViewContext)">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.EmailNavClass(Microsoft.AspNetCore.Mvc.Rendering.ViewContext)">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.ChangePasswordNavClass(Microsoft.AspNetCore.Mvc.Rendering.ViewContext)">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.DownloadPersonalDataNavClass(Microsoft.AspNetCore.Mvc.Rendering.ViewContext)">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.DeletePersonalDataNavClass(Microsoft.AspNetCore.Mvc.Rendering.ViewContext)">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.ExternalLoginsNavClass(Microsoft.AspNetCore.Mvc.Rendering.ViewContext)">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.PersonalDataNavClass(Microsoft.AspNetCore.Mvc.Rendering.ViewContext)">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.TwoFactorAuthenticationNavClass(Microsoft.AspNetCore.Mvc.Rendering.ViewContext)">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Areas.Identity.Pages.Account.Manage.ManageNavPages.PageNavClass(Microsoft.AspNetCore.Mvc.Rendering.ViewContext,System.String)">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.RegisterModel.Input">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.RegisterModel.ReturnUrl">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.RegisterModel.ExternalLogins">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="T:FlightManager.Areas.Identity.Pages.Account.RegisterModel.InputModel">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.RegisterModel.InputModel.Email">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.RegisterModel.InputModel.Password">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Areas.Identity.Pages.Account.RegisterModel.InputModel.ConfirmPassword">
+            <summary>
+                This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+                directly from your code. This API may change or be removed in future releases.
+            </summary>
+        </member>
+        <member name="T:FlightManager.Controllers.AdminController">
+            <summary>
+            Controller for handling administrative operations including user and role management.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Controllers.AdminController.Index(System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            Displays a list of users with optional filtering and pagination.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Controllers.AdminController.Roles(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            Displays a paginated list of all roles in the system with user counts for each role.
+            </summary>
+            <param name="pageNumber">The current page number for pagination.</param>
+            <param name="pageSize">The number of items per page for pagination.</param>
+            <returns>A view containing the paginated list of roles.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.AdminController.Details(System.String)">
+            <summary>
+            Displays user details.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Controllers.AdminController.Create">
+            <summary>
+            Displays user creation form.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Controllers.AdminController.Create(FlightManager.Data.Models.AppUser,System.String,System.String,System.Collections.Generic.List{System.String})">
+            <summary>
+            Handles the creation of a new user with the specified details and roles.
+            </summary>
+            <param name="user">The user object containing basic information.</param>
+            <param name="password">The password for the new user.</param>
+            <param name="confirmPassword">The password confirmation which must match the password.</param>
+            <param name="selectedRoles">List of role names to assign to the new user.</param>
+        </member>
+        <member name="M:FlightManager.Controllers.AdminController.Edit(System.String)">
+            <summary>
+            Displays user edit form.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Controllers.AdminController.Edit(System.String,FlightManager.Data.Models.AppUser,System.Collections.Generic.List{System.String})">
+            <summary>
+            Handles updates to user information and role assignments.
+            </summary>
+            <param name="id">The ID of the user to edit.</param>
+            <param name="user">The user object containing updated information.</param>
+            <param name="selectedRoles">List of role names to assign to the user.</param>
+        </member>
+        <member name="M:FlightManager.Controllers.AdminController.Delete(System.String)">
+            <summary>
+            Displays user deletion confirmation.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Controllers.AdminController.DeleteConfirmed(System.String)">
+            <summary>
+            Permanently deletes a user from the system after confirmation.
+            </summary>
+            <param name="id">The ID of the user to delete.</param>
+            <returns>Redirects to Index with success or error message.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.AdminController.CreateRole">
+            <summary>
+            Displays role creation form.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Controllers.AdminController.CreateRole(Microsoft.AspNetCore.Identity.IdentityRole)">
+            <summary>
+            Handles role creation.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Controllers.AdminController.DeleteRole(System.String)">
+            <summary>
+            Displays role deletion confirmation.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Controllers.AdminController.DeleteRoleConfirmed(System.String)">
+            <summary>
+            Permanently deletes a role from the system after confirmation, if no users are assigned to it.
+            </summary>
+            <param name="id">The ID of the role to delete.</param>
+            <returns>Redirects to Roles view with success or error message.</returns>
+        </member>
+        <member name="T:FlightManager.Controllers.FlightsController">
+            <summary>
+            Controller for managing flight operations.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Controllers.FlightsController.#ctor(FlightManager.Data.ApplicationDbContext,Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FlightManager.Controllers.FlightsController"/> class.
+            </summary>
+            <param name="context">The application database context.</param>
+            <param name="env">The web hosting environment.</param>
+        </member>
+        <member name="M:FlightManager.Controllers.FlightsController.Index(System.String,System.String,System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            Displays a paginated list of flights with optional filtering by location and date range.
+            Applies smart date matching when both departure and arrival dates are provided.
+            </summary>
+            <param name="fromLocation">Optional filter for departure location.</param>
+            <param name="toLocation">Optional filter for arrival location.</param>
+            <param name="departureDate">Optional filter for departure date.</param>
+            <param name="arrivalDate">Optional filter for arrival date.</param>
+            <param name="pageNumber">Current page number for pagination.</param>
+            <param name="pageSize">Number of items per page.</param>
+            <returns>A view containing the filtered and paginated flight list.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.FlightsController.GetLocationSuggestions(System.String,System.Boolean)">
+            <summary>
+            Provides location suggestions for autocomplete functionality in flight search forms.
+            </summary>
+            <param name="term">The search term entered by the user.</param>
+            <param name="isDeparture">True if searching for departure locations, false for arrival locations.</param>
+            <returns>A JSON list of matching location suggestions.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.FlightsController.Details(System.Nullable{System.Int32})">
+            <summary>
+            Displays details for a specific flight.
+            </summary>
+            <param name="id">The flight ID.</param>
+            <returns>The flight details view or NotFound if flight doesn't exist.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.FlightsController.Create">
+            <summary>
+            Displays the flight creation form.
+            </summary>
+            <returns>The flight creation view with an empty flight model.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.FlightsController.Create(FlightManager.Data.Models.Flight)">
+            <summary>
+            Handles flight creation form submission.
+            </summary>
+            <param name="flight">The flight data to create.</param>
+            <returns>Redirects to flight list on success or returns creation view with errors.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.FlightsController.Edit(System.Nullable{System.Int32})">
+            <summary>
+            Displays the flight edit form.
+            </summary>
+            <param name="id">The flight ID to edit.</param>
+            <returns>The edit view or NotFound if flight doesn't exist.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.FlightsController.Edit(System.Int32,FlightManager.Data.Models.Flight)">
+            <summary>
+            Handles flight edit form submission.
+            </summary>
+            <param name="id">The flight ID being edited.</param>
+            <param name="flight">The updated flight data.</param>
+            <returns>Redirects to flight list on success or returns edit view with errors.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.FlightsController.Delete(System.Nullable{System.Int32})">
+            <summary>
+            Displays the flight deletion confirmation form.
+            </summary>
+            <param name="id">The flight ID to delete.</param>
+            <returns>The deletion confirmation view or NotFound if flight doesn't exist.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.FlightsController.DeleteConfirmed(System.Int32)">
+            <summary>
+            Handles flight deletion confirmation.
+            </summary>
+            <param name="id">The flight ID to delete.</param>
+            <returns>Redirects to flight list.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.FlightsController.Passengers(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Displays a paginated list of passengers for a specific flight, sorted by ticket type and confirmation status.
+            </summary>
+            <param name="id">The ID of the flight to view passengers for.</param>
+            <param name="pageNumber">Current page number for pagination (default: 1).</param>
+            <param name="pageSize">Number of passengers per page (default: 5).</param>
+            <returns>A view containing flight details and paginated passenger list.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.FlightsController.FlightExists(System.Int32)">
+            <summary>
+            Checks if a flight with the specified ID exists in the database.
+            </summary>
+            <param name="id">The ID of the flight to check.</param>
+            <returns>True if the flight exists, false otherwise.</returns>
+        </member>
+        <member name="T:FlightManager.Controllers.HomeController">
+            <summary>
+            Controller for handling general application views.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Controllers.HomeController.#ctor(Microsoft.Extensions.Logging.ILogger{FlightManager.Controllers.HomeController},FlightManager.Data.ApplicationDbContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FlightManager.Controllers.HomeController"/> class.
+            </summary>
+            <param name="logger">The logger service.</param>
+            <param name="context">The database context.</param>
+        </member>
+        <member name="M:FlightManager.Controllers.HomeController.Index">
+            <summary>
+            Displays the home page with flight statistics.
+            </summary>
+            <returns>The home page view.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.HomeController.Privacy">
+            <summary>
+            Displays the privacy policy page.
+            </summary>
+            <returns>The privacy policy view.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.HomeController.Error">
+            <summary>
+            Displays the error page with diagnostic information.
+            The response is not cached to ensure accurate error reporting.
+            </summary>
+            <returns>An error view containing the current request ID for troubleshooting.</returns>
+        </member>
+        <member name="T:FlightManager.Controllers.HomeViewModel">
+            <summary>
+            Represents the data model for the home page view, containing flight statistics and upcoming flights.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Controllers.HomeViewModel.TotalFlights">
+            <summary>
+            Gets or sets the total number of flights in the system.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Controllers.HomeViewModel.TotalCapacity">
+            <summary>
+            Gets or sets the sum of all passenger capacities across all flights.
+            </summary>
+        </member>
+        <member name="P:FlightManager.Controllers.HomeViewModel.UpcomingFlights">
+            <summary>
+            Gets or sets the list of upcoming flights (next 5 by departure time).
+            </summary>
+        </member>
+        <member name="T:FlightManager.Controllers.ReservationsController">
+            <summary>
+            Controller for managing flight reservations.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.#ctor(FlightManager.Data.ApplicationDbContext,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.AspNetCore.Identity.UserManager{FlightManager.Data.Models.AppUser},FlightManager.EmailService.BrevoEmailService,FlightManager.Extensions.Services.EmailTemplateService)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FlightManager.Controllers.ReservationsController"/> class.
+            </summary>
+            <param name="context">The application database context.</param>
+            <param name="env">The web hosting environment.</param>
+            <param name="userManager">The user manager service.</param>
+            <param name="emailService">The email service.</param>
+            <param name="templateService">The email template service.</param>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.Index(System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            Displays a list of reservations with optional filtering.
+            </summary>
+            <param name="id">User ID filter.</param>
+            <param name="pageNumber">Number of pages.</param>
+            <param name="pageSize">Page Size.</param>
+            <returns>The index view.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.Details(System.Nullable{System.Int32})">
+            <summary>
+            Displays details for a specific reservation.
+            </summary>
+            <param name="id">The reservation ID.</param>
+            <returns>The reservation details view or NotFound.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.Create(System.String)">
+            <summary>
+            Displays the reservation creation form.
+            </summary>
+            <returns>The reservation creation view.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.Create(FlightManager.Data.Models.Reservation,System.String)">
+            <summary>
+            Handles reservation creation form submission.
+            </summary>
+            <param name="reservation">The reservation data to create.</param>
+            <returns>Redirects to details view on success or returns creation view with errors.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.ConfirmReservation(System.Int32,System.String)">
+            <summary>
+            Confirms a reservation using the provided token.
+            </summary>
+            <param name="id">The reservation ID to confirm.</param>
+            <param name="token">The confirmation token.</param>
+            <returns>Redirects to details view on success or NotFound if invalid.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.Edit(System.Nullable{System.Int32})">
+            <summary>
+            Displays the reservation edit form.
+            </summary>
+            <param name="id">The reservation ID to edit.</param>
+            <returns>The edit view or NotFound.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.Edit(System.Int32,FlightManager.Data.Models.Reservation)">
+            <summary>
+            Handles reservation edit form submission.
+            </summary>
+            <param name="id">The reservation ID being edited.</param>
+            <param name="reservation">The updated reservation data.</param>
+            <returns>Redirects to index view on success or returns edit view with errors.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.Delete(System.Nullable{System.Int32})">
+            <summary>
+            Displays the reservation deletion confirmation form.
+            </summary>
+            <param name="id">The reservation ID to delete.</param>
+            <returns>The deletion confirmation view or NotFound.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.DeleteConfirmed(System.Int32,System.Boolean)">
+            <summary>
+            Handles reservation deletion confirmation.
+            </summary>
+            <param name="id">The reservation ID to delete.</param>
+            <param name="confirmDeleteUser">Whether to confirm deletion of associated user.</param>
+            <returns>Redirects to index view.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.ConfirmDeleteUser(System.Int32)">
+            <summary>
+            Displays the user deletion confirmation form.
+            </summary>
+            <param name="userId">The user ID to delete.</param>
+            <returns>The confirmation view or NotFound.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.ConfirmDeleteUserConfirmed(System.Int32)">
+            <summary>
+            Handles user deletion confirmation.
+            </summary>
+            <param name="userId">The user ID to delete.</param>
+            <returns>Redirects to index view.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.CheckReservation(System.String,System.Int32)">
+            <summary>
+            Checks if a reservation exists for the given EGN and flight ID.
+            </summary>
+            <param name="egn">The EGN to check.</param>
+            <param name="flightId">The flight ID to check.</param>
+            <returns>JSON response indicating if reservation exists.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.GroupCreate">
+            <summary>
+            Displays the group reservation creation form with available flights.
+            </summary>
+            <returns>The group reservation creation view.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.GroupCreate(FlightManager.Data.Models.GroupReservationViewModel)">
+            <summary>
+            Handles group reservation creation for multiple passengers.
+            </summary>
+            <param name="model">The group reservation data.</param>
+            <returns>Redirects with success message or returns view with errors.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.ConfirmGroupReservation(System.String,System.String)">
+            <summary>
+            Confirms a group reservation using the provided token.
+            </summary>
+            <param name="reservationIds">Comma-separated list of reservation IDs.</param>
+            <param name="token">The confirmation token.</param>
+            <returns>Redirects to confirmation view on success or NotFound if invalid.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.GroupConfirmation(System.String)">
+            <summary>
+            Displays the group reservation confirmation details.
+            </summary>
+            <param name="reservationIds">Comma-separated list of confirmed reservation IDs.</param>
+            <returns>The group confirmation view or NotFound.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationsController.ReservationExists(System.Int32)">
+            <summary>
+            Checks if a reservation with the specified ID exists.
+            </summary>
+            <param name="id">The reservation ID to check.</param>
+            <returns>True if the reservation exists, false otherwise.</returns>
+        </member>
+        <member name="T:FlightManager.Controllers.ReservationUsersController">
+            <summary>
+            Controller for managing reservation users.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationUsersController.#ctor(FlightManager.Data.ApplicationDbContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FlightManager.Controllers.ReservationUsersController"/> class.
+            </summary>
+            <param name="context">The application database context.</param>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationUsersController.Index(System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            Displays a paginated list of reservation users with optional search filtering.
+            Includes both standalone reservation users and those linked to application users.
+            </summary>
+            <param name="searchString">Optional search term to filter users by name, username, or email.</param>
+            <param name="pageNumber">Current page number for pagination.</param>
+            <param name="pageSize">Number of items per page.</param>
+            <returns>A view containing the filtered and paginated user list.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationUsersController.Details(System.Nullable{System.Int32})">
+            <summary>
+            Displays details for a specific reservation user.
+            </summary>
+            <param name="id">The user ID.</param>
+            <returns>The user details view or NotFound.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationUsersController.Create">
+            <summary>
+            Displays the reservation user creation form.
+            </summary>
+            <returns>The user creation view.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationUsersController.Create(FlightManager.Data.Models.ReservationUser)">
+            <summary>
+            Handles the creation of a new reservation user with the provided data.
+            Validates the model and saves to database if valid.
+            </summary>
+            <param name="reservationUser">The reservation user data to create.</param>
+            <returns>Redirects to index on success, or returns the creation view with validation errors.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationUsersController.Edit(System.Nullable{System.Int32})">
+            <summary>
+            Displays the reservation user edit form.
+            </summary>
+            <param name="id">The user ID to edit.</param>
+            <returns>The edit view or NotFound.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationUsersController.Edit(System.Int32,FlightManager.Data.Models.ReservationUser)">
+            <summary>
+            Handles reservation user edit form submission.
+            </summary>
+            <param name="id">The user ID being edited.</param>
+            <param name="reservationUser">The updated user data.</param>
+            <returns>Redirects to index view on success or returns edit view with errors.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationUsersController.Delete(System.Nullable{System.Int32})">
+            <summary>
+            Displays the reservation user deletion confirmation form.
+            </summary>
+            <param name="id">The user ID to delete.</param>
+            <returns>The deletion confirmation view or NotFound.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationUsersController.DeleteConfirmed(System.Int32)">
+            <summary>
+            Permanently deletes a reservation user after confirmation.
+            Also removes any associated reservations if they exist.
+            </summary>
+            <param name="id">The ID of the user to delete.</param>
+            <returns>Redirects to the index view after deletion.</returns>
+        </member>
+        <member name="M:FlightManager.Controllers.ReservationUsersController.ReservationUserExists(System.Int32)">
+            <summary>
+            Checks if a reservation user with the specified ID exists in the database.
+            </summary>
+            <param name="id">The ID of the reservation user to check.</param>
+            <returns>True if the user exists, false otherwise.</returns>
+        </member>
+        <member name="T:FlightManager.Extensions.AppStart">
+            <summary>
+            Provides application startup initialization logic.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Extensions.AppStart.InitializeAsync(Microsoft.AspNetCore.Builder.WebApplication,FlightManager.OwnerSettings)">
+            <summary>
+            Initializes the application by seeding required roles and owner user asynchronously.
+            </summary>
+            <param name="app">The WebApplication instance to initialize.</param>
+            <param name="ownerSettings">Configuration settings for the owner user.</param>
+            <returns>A Task representing the asynchronous operation.</returns>
+        </member>
+        <member name="T:FlightManager.Extensions.AppStartLogic.SeedRolesAndOwner">
+            <summary>
+            Contains logic for seeding initial roles and the owner user during application startup.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Extensions.AppStartLogic.SeedRolesAndOwner.SeedRolesAndOwnerAsync(Microsoft.Extensions.DependencyInjection.IServiceScope,FlightManager.OwnerSettings)">
+            <summary>
+            Seeds the database with required roles and ensures the owner user exists with the latest password.
+            </summary>
+            <param name="scope">The IServiceScope containing required services.</param>
+            <param name="ownerSettings">Configuration settings for the owner user.</param>
+            <returns>A Task representing the asynchronous operation.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when owner password is not configured.</exception>
+            <exception cref="T:System.Exception">Thrown when owner user creation or update fails.</exception>
+        </member>
+        <member name="T:FlightManager.Extensions.GenerateReservationEmail">
+            <summary>
+            Provides methods for generating HTML email content for flight reservations.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Extensions.GenerateReservationEmail.ReservationEmail(FlightManager.Data.Models.Reservation,FlightManager.Data.Models.Flight,FlightManager.Data.Models.ReservationUser,System.String,System.String,FlightManager.Extensions.Services.EmailTemplateService)">
+            <summary>
+            Generates an HTML email for an individual flight reservation confirmation.
+            </summary>
+            <param name="reservation">The reservation details.</param>
+            <param name="flight">The flight information.</param>
+            <param name="user">The reservation user details.</param>
+            <param name="confirmationUrl">The URL for confirming the reservation.</param>
+            <param name="detailsUrl">The URL for viewing reservation details.</param>
+            <param name="templateService">The email template service.</param>
+            <returns>An HTML-formatted email string with populated reservation data.</returns>
+        </member>
+        <member name="M:FlightManager.Extensions.GenerateReservationEmail.GroupReservationEmail(System.Collections.Generic.List{FlightManager.Data.Models.Reservation},FlightManager.Data.Models.Flight,System.Collections.Generic.List{FlightManager.Data.Models.PassengerViewModel},System.String,System.String,FlightManager.Extensions.Services.EmailTemplateService)">
+            <summary>
+            Generates an HTML email for a group flight reservation confirmation.
+            </summary>
+            <param name="reservations">List of reservations in the group.</param>
+            <param name="flight">The flight information.</param>
+            <param name="passengers">List of passenger details.</param>
+            <param name="confirmationUrl">The URL for confirming the group reservation.</param>
+            <param name="detailsUrl">The base URL for viewing reservation details.</param>
+            <param name="templateService">The email template service.</param>
+            <returns>An HTML-formatted email string with populated group reservation data.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when reservations or passengers lists are empty or counts don't match.</exception>
+        </member>
+        <member name="M:FlightManager.Extensions.GenerateReservationEmail.FormatDuration(System.TimeSpan)">
+            <summary>
+            Formats a TimeSpan duration into a human-readable string.
+            </summary>
+            <param name="duration">The time duration to format.</param>
+            <returns>
+            A formatted string in "Xd Xh Xm" format for durations over 24 hours,
+            or "Xh Xm" format for shorter durations.
+            </returns>
+        </member>
+        <member name="T:FlightManager.Extensions.Services.EmailTemplateService">
+            <summary>
+            Service for loading and processing email templates with dynamic content replacement.
+            </summary>
+            
+        </member>
+        <member name="M:FlightManager.Extensions.Services.EmailTemplateService.#ctor(Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.Extensions.Logging.ILogger{FlightManager.Extensions.Services.EmailTemplateService})">
+            <summary>
+            Initializes a new instance of the <see cref="T:FlightManager.Extensions.Services.EmailTemplateService"/> class.
+            </summary>
+            <param name="env">The web hosting environment to locate template files.</param>
+            <param name="logger">The logger for recording service events.</param>
+        </member>
+        <member name="M:FlightManager.Extensions.Services.EmailTemplateService.GetTemplate(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Retrieves and processes an email template with the specified replacements.
+            </summary>
+            <param name="templateName">The name of the template file to load.</param>
+            <param name="replacements">Dictionary of placeholder-value pairs for template substitution.</param>
+            <returns>The processed template content with all replacements applied.</returns>
+            <exception cref="T:System.IO.FileNotFoundException">Thrown when the specified template file doesn't exist.</exception>
+            <remarks>
+            Template files should be located in the application's "Templates" directory.
+            Placeholders in templates should be in the format {Key} where Key matches a key in the replacements dictionary.
+            </remarks>
+        </member>
+        <member name="T:FlightManager.Extensions.Services.ReservationCleanupService">
+            <summary>
+            A background service that periodically checks for and removes expired reservations.
+            </summary>
+            <remarks>
+            This service runs in the background and performs the following operations at regular intervals:
+            <list type="bullet">
+            <item><description>Identifies reservations that exceed the configured expiry time without being confirmed</description></item>
+            <item><description>Removes expired reservations and their associated user data when appropriate</description></item>
+            <item><description>Logs cleanup operations and any errors that occur</description></item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:FlightManager.Extensions.Services.ReservationCleanupService.#ctor(Microsoft.Extensions.Logging.ILogger{FlightManager.Extensions.Services.ReservationCleanupService},System.IServiceProvider,Microsoft.Extensions.Options.IOptions{FlightManager.ReservationCleanupSettings})">
+            <summary>
+            Initializes a new instance of the <see cref="T:FlightManager.Extensions.Services.ReservationCleanupService"/> class.
+            </summary>
+            <param name="logger">The logger used to record service events and errors.</param>
+            <param name="services">The service provider for creating scoped services.</param>
+            <param name="settings">Configuration settings for the cleanup service.</param>
+            <exception cref="T:System.ArgumentNullException">
+            Thrown when <paramref name="logger"/>, <paramref name="services"/>, or <paramref name="settings"/> is null.
+            </exception>
+        </member>
+        <member name="M:FlightManager.Extensions.Services.ReservationCleanupService.ExecuteAsync(System.Threading.CancellationToken)">
+            <summary>
+            Executes the cleanup service, periodically checking for and removing expired reservations.
+            </summary>
+            <param name="stoppingToken">A cancellation token that signals when the service should stop.</param>
+            <returns>A task that represents the asynchronous operation.</returns>
+            <remarks>
+            The service performs the following steps in each iteration:
+            <list type="number">
+            <item><description>Creates a new service scope for database access</description></item>
+            <item><description>Queries for unconfirmed reservations older than the expiry time</description></item>
+            <item><description>Removes associated reservation users if they meet deletion criteria</description></item>
+            <item><description>Deletes all expired reservations</description></item>
+            <item><description>Waits for the configured interval before repeating</description></item>
+            </list>
+            Any exceptions during processing are caught and logged without stopping the service.
+            </remarks>
+        </member>
+        <member name="T:FlightManager.Program">
+            <summary>
+            The main entry point for the FlightManager application.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Program.Main(System.String[])">
+            <summary>
+            The entry point of the application.
+            </summary>
+        </member>
+        <member name="T:FlightManager.OwnerSettings">
+            <summary>
+            Represents configuration settings for the owner user.
+            </summary>
+        </member>
+    </members>
+</doc>

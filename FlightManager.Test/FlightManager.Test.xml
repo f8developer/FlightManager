@@ -1,0 +1,305 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FlightManager.Test</name>
+    </assembly>
+    <members>
+        <member name="T:FlightManager.Test.ContextTests.ApplicationDbContextTests">
+            <summary>
+            Contains unit tests for the ApplicationDbContext class.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ContextTests.ApplicationDbContextTests.Setup">
+            <summary>
+            Sets up the test environment before each test method is executed.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ContextTests.ApplicationDbContextTests.TestRemoveOrphanedReservationUser">
+            <summary>
+            Tests that orphaned ReservationUsers are automatically removed when their last reservation is deleted.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ContextTests.ApplicationDbContextTests.TestSaveChanges_NoOrphanedReservationUser">
+            <summary>
+            Tests that non-orphaned ReservationUsers are not removed when saving changes.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ContextTests.ApplicationDbContextTests.TestReservationUserAppUserRelationship">
+            <summary>
+            Tests the relationship between ReservationUser and AppUser entities.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ContextTests.ApplicationDbContextTests.TestEnumStorage">
+            <summary>
+            Tests that TicketType enum values are correctly stored and retrieved from the database.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ContextTests.ApplicationDbContextTests.TearDown">
+            <summary>
+            Cleans up the test environment after each test method is executed.
+            </summary>
+        </member>
+        <member name="T:FlightManager.Test.ModelTests.FlightTests">
+            <summary>
+            Contains unit tests for the Flight model validation.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.FlightTests.FlightValidation_ShouldFail_WhenArrivalBeforeDeparture">
+            <summary>
+            Tests that flight validation fails when arrival time is before departure time.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.FlightTests.FlightValidation_ShouldFail_WhenBusinessClassExceedsTotalCapacity">
+            <summary>
+            Tests that flight validation fails when business class capacity exceeds total passenger capacity.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.FlightTests.FlightValidation_ShouldPass_WithValidData">
+            <summary>
+            Tests that flight validation passes with valid data.
+            </summary>
+        </member>
+        <member name="T:FlightManager.Test.ModelTests.ReservationTests">
+            <summary>
+            Contains unit tests for validating the Reservation model's business rules and database operations.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationTests.Setup">
+            <summary>
+            Initializes the test environment with an in-memory database and test data.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationTests.ValidateReservation_ShouldPass_WhenAllRequirementsAreMet">
+            <summary>
+            Tests that a valid reservation passes all validation checks.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationTests.ValidateReservation_ShouldFail_WhenDuplicateReservationExists">
+            <summary>
+            Tests that validation fails when attempting to create a duplicate reservation.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationTests.ValidateReservation_ShouldFail_WhenDatabaseContextIsUnavailable">
+            <summary>
+            Tests that validation fails when the database context is unavailable.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationTests.Reservation_ShouldSetCreatedAt_WhenNotProvided">
+            <summary>
+            Tests that the CreatedAt property is automatically set when not provided.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationTests.Reservation_ShouldDefaultToNotConfirmed_WhenCreated">
+            <summary>
+            Tests that IsConfirmed defaults to false for new reservations.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationTests.TearDown">
+            <summary>
+            Cleans up the test environment after each test.
+            </summary>
+        </member>
+        <member name="T:FlightManager.Test.ModelTests.ReservationTests.ServiceProviderStub">
+            <summary>
+            Service provider stub for providing the database context during validation.
+            </summary>
+        </member>
+        <member name="T:FlightManager.Test.ModelTests.ReservationUserTests">
+            <summary>
+            Contains unit tests for validating the ReservationUser model's data annotations and business rules.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationUserTests.CreateValidUser">
+            <summary>
+            Creates a valid ReservationUser instance for testing with all required fields populated.
+            </summary>
+            <returns>A valid ReservationUser instance with test data</returns>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationUserTests.ValidateModel(System.Object)">
+            <summary>
+            Validates a model object and returns the validation results.
+            </summary>
+            <param name="model">The model instance to validate</param>
+            <returns>List of validation results containing any validation errors</returns>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationUserTests.ValidateReservationUser_ShouldPass_WhenAllFieldsAreValid">
+            <summary>
+            Tests that a fully valid ReservationUser passes all validation checks.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationUserTests.ValidateReservationUser_ShouldFail_WhenEGNIsInvalid">
+            <summary>
+            Tests that validation fails when EGN has invalid format (not exactly 10 digits).
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationUserTests.ValidateReservationUser_ShouldFail_WhenPhoneNumberIsInvalid">
+            <summary>
+            Tests that validation fails when phone number has invalid format.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationUserTests.ValidateReservationUser_ShouldFail_WhenEmailIsInvalid">
+            <summary>
+            Tests that validation fails when email has invalid format.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationUserTests.ValidateReservationUser_ShouldPass_WhenEmailIsMissing">
+            <summary>
+            Tests that validation passes when email is not provided (since it's optional).
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ModelTests.ReservationUserTests.ValidateReservationUser_ShouldFail_WhenFieldsExceedMaxLength">
+            <summary>
+            Tests that validation fails when string fields exceed maximum length.
+            </summary>
+        </member>
+        <member name="T:FlightManager.Test.ServiceTests.EmailTemplateServiceTests">
+            <summary>
+            Unit tests for the <see cref="T:FlightManager.Extensions.Services.EmailTemplateService"/> class.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.EmailTemplateServiceTests.Setup">
+            <summary>
+            Sets up the test environment before each test method is executed.
+            Creates a temporary directory for template files and initializes mocks.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.EmailTemplateServiceTests.Dispose">
+            <summary>
+            Cleans up the test environment by deleting the temporary directory
+            and its contents after each test method is executed.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.EmailTemplateServiceTests.Constructor_ShouldCreateTemplatesDirectory_WhenNotExists">
+            <summary>
+            Tests that the constructor creates the Templates directory when it doesn't exist.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.EmailTemplateServiceTests.GetTemplate_ShouldReturnProcessedTemplate_WhenValid">
+            <summary>
+            Tests that GetTemplate returns the processed template with all placeholders replaced
+            when provided with valid template and replacement values.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.EmailTemplateServiceTests.GetTemplate_ShouldThrowFileNotFoundException_WhenTemplateMissing">
+            <summary>
+            Tests that GetTemplate throws a FileNotFoundException when the requested template doesn't exist.
+            Verifies that the error is logged.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.EmailTemplateServiceTests.GetTemplate_ShouldHandleEmptyReplacements">
+            <summary>
+            Tests that GetTemplate handles templates with no replacement placeholders correctly.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.EmailTemplateServiceTests.GetTemplate_ShouldPreserveUnmatchedPlaceholders">
+            <summary>
+            Tests that GetTemplate preserves unmatched placeholders in the template content.
+            </summary>
+        </member>
+        <member name="T:FlightManager.Test.ServiceTests.ReservationCleanupServiceTests">
+            <summary>
+            Unit tests for the <see cref="T:FlightManager.Extensions.Services.ReservationCleanupService"/> class.
+            </summary>
+            <remarks>
+            These tests verify the behavior of the reservation cleanup service including:
+            <list type="bullet">
+            <item><description>Removal of expired unconfirmed reservations</description></item>
+            <item><description>Proper handling of associated reservation users</description></item>
+            <item><description>Error handling and logging</description></item>
+            <item><description>Graceful shutdown behavior</description></item>
+            </list>
+            Tests use an in-memory database for isolation and speed.
+            </remarks>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.ReservationCleanupServiceTests.Setup">
+            <summary>
+            Sets up the test environment before each test method is executed.
+            </summary>
+            <remarks>
+            Initializes:
+            <list type="bullet">
+            <item><description>Logger mock</description></item>
+            <item><description>In-memory database</description></item>
+            <item><description>Service provider with test dependencies</description></item>
+            <item><description>Test configuration settings</description></item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.ReservationCleanupServiceTests.Dispose">
+            <summary>
+            Cleans up test resources after each test method is executed.
+            </summary>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.ReservationCleanupServiceTests.CreateTestReservation(System.DateTime,System.Boolean,System.Int32,System.Int32)">
+            <summary>
+            Creates a test reservation with specified parameters.
+            </summary>
+            <param name="createdAt">The creation date/time of the reservation.</param>
+            <param name="isConfirmed">Whether the reservation is confirmed.</param>
+            <param name="flightId">The ID of the associated flight.</param>
+            <param name="userId">The ID of the associated reservation user.</param>
+            <returns>A new reservation instance with test data.</returns>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.ReservationCleanupServiceTests.CreateTestUser(System.Int32,System.String)">
+            <summary>
+            Creates a test reservation user with specified parameters.
+            </summary>
+            <param name="id">The ID of the user.</param>
+            <param name="appUserId">The associated application user ID (optional).</param>
+            <returns>A new reservation user instance with test data.</returns>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.ReservationCleanupServiceTests.ExecuteAsync_ShouldRemoveExpiredUnconfirmedReservations">
+            <summary>
+            Tests that the service removes expired unconfirmed reservations.
+            </summary>
+            <returns>A task that represents the asynchronous test operation.</returns>
+            <remarks>
+            Verifies that:
+            <list type="number">
+            <item><description>Expired unconfirmed reservations are removed</description></item>
+            <item><description>Valid unconfirmed reservations remain</description></item>
+            <item><description>Confirmed reservations remain regardless of age</description></item>
+            <item><description>The operation is properly logged</description></item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.ReservationCleanupServiceTests.ExecuteAsync_ShouldRemoveOrphanedReservationUsers">
+            <summary>
+            Tests that the service removes orphaned reservation users when their last reservation is cleaned up.
+            </summary>
+            <returns>A task that represents the asynchronous test operation.</returns>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.ReservationCleanupServiceTests.ExecuteAsync_ShouldKeepReservationUsersWithOtherReservations">
+            <summary>
+            Tests that the service preserves reservation users who have other active reservations.
+            </summary>
+            <returns>A task that represents the asynchronous test operation.</returns>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.ReservationCleanupServiceTests.ExecuteAsync_ShouldKeepAppUserLinkedReservationUsers">
+            <summary>
+            Tests that the service preserves reservation users who are linked to application users.
+            </summary>
+            <returns>A task that represents the asynchronous test operation.</returns>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.ReservationCleanupServiceTests.ExecuteAsync_ShouldLogError_WhenExceptionOccurs">
+            <summary>
+            Tests that the service properly logs errors when exceptions occur during cleanup.
+            </summary>
+            <returns>A task that represents the asynchronous test operation.</returns>
+        </member>
+        <member name="M:FlightManager.Test.ServiceTests.ReservationCleanupServiceTests.ExecuteAsync_ShouldStopGracefully_WhenCancelled">
+            <summary>
+            Tests that the service stops gracefully when cancellation is requested.
+            </summary>
+            <returns>A task that represents the asynchronous test operation.</returns>
+            <remarks>
+            Verifies that the service:
+            <list type="number">
+            <item><description>Properly logs startup</description></item>
+            <item><description>Properly logs shutdown</description></item>
+            <item><description>Handles cancellation without exceptions</description></item>
+            </list>
+            </remarks>
+        </member>
+    </members>
+</doc>

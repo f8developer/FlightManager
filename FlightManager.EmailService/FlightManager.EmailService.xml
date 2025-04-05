@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FlightManager.EmailService</name>
+    </assembly>
+    <members>
+        <member name="T:FlightManager.EmailService.BrevoEmailService">
+            <summary>
+            Service for sending emails using the Brevo (formerly Sendinblue) API.
+            </summary>
+        </member>
+        <member name="M:FlightManager.EmailService.BrevoEmailService.#ctor(Microsoft.Extensions.Logging.ILogger{FlightManager.EmailService.BrevoEmailService},System.String)">
+            <summary>
+            Initializes a new instance of the Brevo email service.
+            </summary>
+            <param name="logger">The logger instance for recording service events.</param>
+            <param name="credentialsPath">Path to the JSON file containing API credentials. Defaults to "credentials.json".</param>
+            <exception cref="T:System.IO.FileNotFoundException">Thrown when the credentials file is not found.</exception>
+            <exception cref="T:System.Exception">Thrown when credentials are missing or invalid.</exception>
+        </member>
+        <member name="M:FlightManager.EmailService.BrevoEmailService.SendEmail(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Sends an email using the Brevo API.
+            </summary>
+            <param name="subject">The email subject line.</param>
+            <param name="htmlContent">The HTML content of the email.</param>
+            <param name="recipientEmail">The recipient's email address.</param>
+            <param name="recipientName">Optional recipient name.</param>
+            <param name="textContent">Optional plain text content. If not provided, will be generated from HTML.</param>
+            <returns>The message ID from Brevo if successful.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when API key is not configured.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when recipient email is invalid or content is empty.</exception>
+            <exception cref="T:System.Exception">Thrown when email sending fails.</exception>
+        </member>
+        <member name="M:FlightManager.EmailService.BrevoEmailService.ConvertHtmlToPlainText(System.String)">
+            <summary>
+            Converts HTML content to plain text by stripping HTML tags.
+            </summary>
+            <param name="html">The HTML content to convert.</param>
+            <returns>Plain text version of the HTML content.</returns>
+        </member>
+        <member name="T:FlightManager.EmailService.BrevoEmailService.AppCredentials">
+            <summary>
+            Internal class for deserializing email service credentials.
+            </summary>
+        </member>
+        <member name="P:FlightManager.EmailService.BrevoEmailService.AppCredentials.BrevoApiKey">
+            <summary>
+            Gets or sets the Brevo API key.
+            </summary>
+        </member>
+        <member name="P:FlightManager.EmailService.BrevoEmailService.AppCredentials.SenderEmail">
+            <summary>
+            Gets or sets the sender email address.
+            </summary>
+        </member>
+        <member name="P:FlightManager.EmailService.BrevoEmailService.AppCredentials.SenderName">
+            <summary>
+            Gets or sets the sender display name.
+            </summary>
+        </member>
+    </members>
+</doc>
